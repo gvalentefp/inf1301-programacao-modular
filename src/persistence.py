@@ -6,6 +6,7 @@ Requirement: The system must persist data, not just in memory[cite: 209].
 import json
 import os
 from src.shared import RETURN_CODES
+from typing import Union, Dict, List
 
 __all__ = ['initialize_db', 'save_db', 'database']
 

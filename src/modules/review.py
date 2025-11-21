@@ -7,12 +7,6 @@ import datetime
 from src.persistence import database
 from src.shared import RETURN_CODES, CONSTANTS
 from src.persistence import find_entity_by_pk
-from src.modules.student import create_student_review 
-from src.modules.professor import create_professor_review 
-from src.modules.classes import associate_review_to_class 
-from src.modules.student import delete_student_review 
-from src.modules.professor import remove_review_reference_from_professor
-from src.modules.classes import remove_review_reference_from_class
 from src.persistence import find_entity_by_pk # Necessário para buscar professores da Turma
 
 __all__ = [
@@ -225,6 +219,11 @@ def create_review(data: Dict) -> int:
     User Interface: Log "Creating review by student {enrollment}" (Internal Log).
     """
 
+    from src.modules.student import create_student_review 
+    from src.modules.professor import create_professor_review 
+    from src.modules.classes import associate_review_to_class 
+
+
     if validate_review(data) != RETURN_CODES['SUCCESS']:
         print("Log: Failed to create review. Invalid or incomplete data.")
         return RETURN_CODES['ERROR']
@@ -361,6 +360,10 @@ def delete_review(review_id: int) -> int:
         Output Assertions: If SUCCESS, the review record is removed from database['reviews'].
     User Interface: (Internal Log).
     """
+        
+    from src.modules.student import delete_student_review 
+    from src.modules.professor import remove_review_reference_from_professor
+    from src.modules.classes import remove_review_reference_from_class
 
     review_record = repo_retrieve_review(review_id)
     
