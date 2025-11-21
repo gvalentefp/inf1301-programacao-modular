@@ -6,6 +6,7 @@ Requirement: The system must persist data, not just in memory[cite: 209].
 import json
 import os
 from src.shared import RETURN_CODES
+from typing import Dict, Union
 
 __all__ = ['initialize_db', 'save_db', 'database']
 
@@ -34,8 +35,13 @@ def initialize_db():
 
     try:
         with open(DB_FILE, 'r', encoding='utf-8') as f:
-            loaded_data = json.load(f)
-            # Update the global dict
+            # Novo: Verifica se o arquivo está vazio antes de tentar carregar JSON
+            content = f.read().strip()
+            if not content:
+                print(f"Warning: Database file {DB_FILE} is empty. Initializing empty structure.")
+                return RETURN_CODES['SUCCESS']
+
+            loaded_data = json.loads(content)
             database.update(loaded_data)
         return RETURN_CODES['SUCCESS']
     except Exception as e:

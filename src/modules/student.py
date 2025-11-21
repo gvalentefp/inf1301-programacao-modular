@@ -7,8 +7,8 @@ from src.persistence import database
 from src.shared import RETURN_CODES, CONSTANTS
 from src.domains.course import validate_course
 from src.persistence import find_entity_by_pk
-from src.modules.review import delete_review 
-from src.modules.classes import delete_student_reference_from_all_classes 
+# from src.modules.review import delete_review 
+# from src.modules.classes import delete_student_reference_from_all_classes 
 
 __all__ = [
     'create_student', 'retrieve_student', 'retrieve_all_students', 
@@ -287,6 +287,11 @@ def delete_student(enrollment: int) -> int:
         Output Assertions: If SUCCESS, the student record is removed from database['students'].
     User Interface: Log "Deleting student with enrollment {enrollment}" (Internal Log).
     """
+
+    # IMPORTAÇÕES DEFERIDAS (para quebrar a circularidade)
+    from src.modules.review import delete_review 
+    from src.modules.classes import delete_student_reference_from_all_classes
+
     student = repo_retrieve_student(enrollment)
     
     # T2/T3 - Enrollment check 

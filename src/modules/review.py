@@ -7,13 +7,13 @@ import datetime
 from src.persistence import database
 from src.shared import RETURN_CODES, CONSTANTS
 from src.persistence import find_entity_by_pk
-from src.modules.student import create_student_review 
-from src.modules.professor import create_professor_review 
-from src.modules.classes import associate_review_to_class 
-from src.modules.student import delete_student_review 
-from src.modules.professor import remove_review_reference_from_professor
-from src.modules.classes import remove_review_reference_from_class
-from src.persistence import find_entity_by_pk # Necessário para buscar professores da Turma
+from src.persistence import find_entity_by_pk 
+# from src.modules.student import create_student_review 
+# from src.modules.professor import create_professor_review 
+# from src.modules.classes import associate_review_to_class 
+# from src.modules.student import delete_student_review 
+# from src.modules.professor import remove_review_reference_from_professor
+# from src.modules.classes import remove_review_reference_from_class
 
 __all__ = [
     'create_review', 'retrieve_review', 'update_review', 
@@ -178,7 +178,7 @@ def validate_review(data: Dict) -> int:
     if not data['title'] or len(data['title']) > CONSTANTS['MAX_TITLE_LENGTH']:
         return RETURN_CODES['ERROR'] # Title check
         
-    if not data['comment'] or len(data['comment']) > CONSTANTS['MAX_COMENT_LENGTH']:
+    if not data['comment'] or len(data['comment']) > CONSTANTS['MAX_COMMENT_LENGTH']:
         return RETURN_CODES['ERROR'] # Comment check
         
     if not isinstance(data['date_time'], str): # Simplified check for a string representation of struct tm
@@ -224,6 +224,11 @@ def create_review(data: Dict) -> int:
         Output Assertions: A new review record exists in the database with a unique 'id_aval'.
     User Interface: Log "Creating review by student {enrollment}" (Internal Log).
     """
+
+    from src.modules.student import create_student_review
+    from src.modules.professor import create_professor_review
+    from src.modules.classes import associate_review_to_class
+    from src.persistence import find_entity_by_pk
 
     if validate_review(data) != RETURN_CODES['SUCCESS']:
         print("Log: Failed to create review. Invalid or incomplete data.")
@@ -361,6 +366,11 @@ def delete_review(review_id: int) -> int:
         Output Assertions: If SUCCESS, the review record is removed from database['reviews'].
     User Interface: (Internal Log).
     """
+    
+    from src.modules.student import delete_student_review 
+    from src.modules.professor import remove_review_reference_from_professor
+    from src.modules.classes import remove_review_reference_from_class
+    from src.persistence import find_entity_by_pk
 
     review_record = repo_retrieve_review(review_id)
     

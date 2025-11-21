@@ -6,7 +6,7 @@ from typing import List, Dict, Union
 from src.persistence import database
 from src.shared import RETURN_CODES
 from src.shared import CONSTANTS
-from src.modules.classes import delete_classes_by_subject
+# from src.modules.classes import delete_classes_by_subject
 from src.modules.student import remove_subject_reference_from_all_students
 from src.modules.professor import remove_subject_reference_from_all_professors
 from src.modules.classes import delete_classes_by_subject
@@ -156,6 +156,8 @@ def delete_subject(code: int) -> int:
     """
     Objective: Permanently remove a subject record (PK) and orchestrate the deletion of all dependent records (cascading delete).
     """
+    
+    from src.modules.classes import delete_classes_by_subject
 
     # T3 - Validate code parameter 
     if not isinstance(code, int) or code <= 0:

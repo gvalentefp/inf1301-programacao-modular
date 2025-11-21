@@ -5,10 +5,8 @@ The entity is complex, relating Subject, Professor, Student, and Schedule.
 from typing import List, Dict, Union
 from src.persistence import database
 from src.shared import RETURN_CODES, WEEK_DAYS
-# Importações mockadas (devem ser implementadas em módulos futuros/existentes)
-from src.modules.subject import retrieve_subject
+# from src.modules.subject import retrieve_subject
 from src.modules.professor import retrieve_professor
-from src.modules.student import retrieve_student
 
 __all__ = [
     'create_class', 'exists_class', 'retrieve_class', 
@@ -155,6 +153,9 @@ def validate_class(data: Dict) -> int:
         Output Assertions: If SUCCESS, all constraints (FKs, domain rules) are met.
     User Interface: (Internal Log).
     """
+    
+    from src.modules.subject import retrieve_subject
+
     # Check mandatory fields
     required_fields = ['subject_code', 'professors_ids', 'period', 'schedule', 'students_enrollments']
     if not all(field in data for field in required_fields):

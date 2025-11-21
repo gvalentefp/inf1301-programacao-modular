@@ -3,8 +3,6 @@ import datetime
 from src.modules.review import (
     create_review, retrieve_review, update_review, 
     delete_review, validate_review, retrieve_all_reviews,
-    validate_review_category, REVIEW_CATEGORIES,
-    _generate_review_id
 )
 from src.persistence import database, initialize_db
 from src.shared import RETURN_CODES
