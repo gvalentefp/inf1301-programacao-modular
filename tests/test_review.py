@@ -3,11 +3,13 @@ import datetime
 from src.modules.review import (
     create_review, retrieve_review, update_review, 
     delete_review, validate_review, retrieve_all_reviews,
-    validate_review_category, REVIEW_CATEGORIES,
-    _generate_review_id
 )
 from src.persistence import database, initialize_db
 from src.shared import RETURN_CODES
+from src.modules.student import create_student
+from src.modules.subject import create_subject
+from src.modules.professor import create_professor
+from src.modules.classes import create_class
 
 # --- Fixtures (Dados de Teste) ---
 VALID_REVIEW_ID = 1 
@@ -35,24 +37,47 @@ VALID_REVIEW_DATA = {
 class TestReview(unittest.TestCase):
     
     def setUp(self):
-        """Prepara um estado limpo e insere dados MOCK para validar FKs."""
-        database['reviews'] = []
+        """Prepara um estado limpo e insere dados MOCK."""
+        initialize_db()
         
-        # Simula a existência de entidades referenciadas (FKs)
-        database['students'] = [{'enrollment': MOCK_ENROLLMENT, 'name': 'Author Name'}]
-        database['classes'] = [{'code': MOCK_CLASS_CODE, 'subject_code': 1301, 'period': 20242, 'professors_ids': [1]}]
-
-        # Reseta o contador de ID da avaliação
-        global next_review_id
+        # Reset IDs
         try:
              from src.modules.review import next_review_id
              next_review_id = 1
-        except ImportError:
-            pass 
-        initialize_db()
+        except ImportError: pass
+        try:
+             from src.modules.classes import next_class_id
+             next_class_id = 1
+        except ImportError: pass
+        try:
+             from src.modules.professor import next_professor_id
+             next_professor_id = 1
+        except ImportError: pass
+
+        # --- Create the Environment Chain ---
+        # 1. Author (Student)
+        create_student({
+            'enrollment': MOCK_ENROLLMENT, 'username': 'author', 'name': 'Author', 
+            'password': '123', 'institutional_email': 'a@puc-rio.br', 'course': 'CIEN_COMP'
+        })
+        
+        # 2. Subject
+        create_subject({'code': 1301, 'credits': 4, 'name': 'Subject', 'description': 'Desc'})
+        
+        # 3. Professor (ID 1)
+        create_professor({'name': 'Prof A', 'department': 'INF'})
+
+        # 4. Class (Code 101) - Needs Subject 1301 and Prof 1
+        database['classes'].append({
+            'code': MOCK_CLASS_CODE, # 101
+            'subject_code': 1301, 
+            'period': 20242, 
+            'professors_ids': [1],
+            'students_enrollments': [],
+            'reviews_ids': []
+        })
 
     # --- Testes de Validação (validate_review) ---
-
     def test_01_validate_review_t1_success(self):
         """T1: Retorna SUCESSO quando todos os campos e FKs são válidos."""
         print("\nCaso de Teste 01 - Validação com Sucesso (5 estrelas)")
@@ -136,7 +161,13 @@ class TestReview(unittest.TestCase):
         create_review(VALID_REVIEW_DATA)
         
         # Cria uma avaliação de outro autor
-        database['students'].append({'enrollment': 123, 'name': 'Another Author'})
+        database['students'].append({
+            'enrollment': 123, 
+            'name': 'Another Author',
+            'reviews': [],   # <--- CRITICAL FIX
+            'subjects': []   # <--- Good practice
+        })
+
         data_other_author = VALID_REVIEW_DATA.copy()
         data_other_author['student_enrollment'] = 123
         data_other_author['stars'] = 1

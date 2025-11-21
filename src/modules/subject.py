@@ -152,7 +152,7 @@ def delete_subject(code: int) -> int:
     """
     Objective: Permanently remove a subject record (PK) and orchestrate the deletion of all dependent records (cascading delete).
     """
-
+    
     from src.modules.classes import delete_classes_by_subject
     from src.modules.student import remove_subject_reference_from_all_students
     from src.modules.professor import remove_subject_reference_from_all_professors

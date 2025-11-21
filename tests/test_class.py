@@ -7,6 +7,9 @@ from src.modules.classes import (
 
 from src.persistence import database, initialize_db
 from src.shared import RETURN_CODES
+from src.modules.subject import create_subject
+from src.modules.professor import create_professor
+from src.modules.student import create_student
 
 # --- Fixtures (Dados de Teste) ---
 VALID_CLASS_CODE = 1 # O primeiro ID gerado
@@ -36,30 +39,32 @@ VALID_CLASS_DATA = {
 class TestClass(unittest.TestCase):
     
     def setUp(self):
-        """Prepara um estado limpo e insere dados MOCK para validar FKs."""
-        database['classes'] = []
-        
-        # Simula a existência de entidades referenciadas (FKs)
-        database['subjects'] = [{'code': MOCK_SUBJECT_CODE, 'name': 'Modular Programming'}]
-        database['professors'] = [
-            {'id': MOCK_PROF_ID_1, 'name': 'Prof A', 'department': 'INF'},
-            {'id': MOCK_PROF_ID_2, 'name': 'Prof B', 'department': 'MAT'}
-        ]
-        database['students'] = [
-            {'enrollment': MOCK_STUDENT_ENROLLMENT, 'name': 'Student X', 'course': 'CIEN_COMP'}
-        ]
-
-        # Reseta o contador de ID da classe
-        global next_class_id
-        try:
-             from src.modules.classes import next_class_id
-             next_class_id = 1
-        except ImportError:
-            pass 
+        """Prepara um estado limpo e insere dados MOCK."""
         initialize_db()
+        
+        database['classes'] = []
+        database['subjects'] = []
+        database['professors'] = []
+        database['students'] = []
+
+        import src.modules.classes
+        src.modules.classes.next_class_id = 1
+        
+        import src.modules.professor
+        src.modules.professor.next_professor_id = 1
+
+        # Create Dependencies
+        create_subject({'code': MOCK_SUBJECT_CODE, 'credits': 4, 'name': 'Modular', 'description': 'Desc'})
+        create_professor({'name': 'Prof A', 'department': 'INF'}) # Will be ID 1
+        create_professor({'name': 'Prof B', 'department': 'MAT'}) # Will be ID 2
+        
+        create_student({
+            'enrollment': MOCK_STUDENT_ENROLLMENT, 
+            'username': 'studentx', 'name': 'Student X', 'password': '123', 
+            'institutional_email': 'x@puc-rio.br', 'course': 'CIEN_COMP'
+        })
 
     # --- Testes de Validação (validate_class) ---
-
     def test_01_validate_class_t1_success(self):
         """T1: Retorna SUCESSO quando todos os campos e FKs são válidos."""
         print("\nCaso de Teste 01 - Validação com Sucesso")

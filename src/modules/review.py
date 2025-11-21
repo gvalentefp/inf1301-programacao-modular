@@ -172,7 +172,7 @@ def validate_review(data: Dict) -> int:
     if not data['title'] or len(data['title']) > CONSTANTS['MAX_TITLE_LENGTH']:
         return RETURN_CODES['ERROR'] # Title check
         
-    if not data['comment'] or len(data['comment']) > CONSTANTS['MAX_COMENT_LENGTH']:
+    if not data['comment'] or len(data['comment']) > CONSTANTS['MAX_COMMENT_LENGTH']:
         return RETURN_CODES['ERROR'] # Comment check
         
     if not isinstance(data['date_time'], str): # Simplified check for a string representation of struct tm

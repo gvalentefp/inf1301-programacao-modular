@@ -10,6 +10,7 @@ from src.modules.professor import (
 from src.persistence import database, initialize_db
 from src.shared import RETURN_CODES
 from src.domains.department import DEPT_LIST
+from src.modules.subject import create_subject
 
 # --- Fixtures (Dados de Teste) ---
 VALID_PROF_ID = 1
@@ -27,17 +28,17 @@ VALID_PROFESSOR_DATA = {
 class TestProfessor(unittest.TestCase):
     
     def setUp(self):
-        """Prepara um estado limpo para cada teste, zerando o banco de dados de professores."""
+        """Prepara um estado limpo para cada teste."""
+        initialize_db() 
         database['professors'] = []
-        # Resetar o contador de ID global para garantir que o primeiro professor criado seja sempre o ID 1
-        global next_professor_id
-        try:
-             # Acessa e reseta a variável global definida no módulo professor
-             from src.modules.professor import next_professor_id
-             next_professor_id = 1
-        except ImportError:
-            pass # Ignora se a variável não estiver diretamente acessível, mas deve funcionar se o módulo for importado corretamente
-        initialize_db()
+        database['subjects'] = []
+
+        import src.modules.professor 
+        src.modules.professor.next_professor_id = 1 
+
+        # Create Dependencies
+        create_subject({'code': 1301, 'credits': 4, 'name': 'Modular', 'description': 'Desc'})
+        create_subject({'code': 500, 'credits': 4, 'name': 'Old', 'description': 'Desc'})
 
     # --- Testes de Criação (create_professor) ---
     

@@ -19,12 +19,10 @@ VALID_SUBJECT_DATA = {
 class TestSubject(unittest.TestCase):
     
     def setUp(self):
-        """Prepares a clean state for each test, clearing the global database."""
-        # Use a temporary clean database state for testing
-        database['subjects'] = []
-        # Ensure persistence functions are mocked or handled if necessary, but for now, rely on clean dict.
-        initialize_db()
-
+        """Prepares a clean state."""
+        initialize_db()          # 1. Load DB first
+        database['subjects'] = [] # 2. THEN wipe it clean
+        
     def tearDown(self):
         """Ensures the database is clean after each test."""
         database['subjects'] = []

@@ -5,8 +5,6 @@ The entity is complex, relating Subject, Professor, Student, and Schedule.
 from typing import List, Dict, Union
 from src.persistence import database
 from src.shared import RETURN_CODES, WEEK_DAYS
-# Importações mockadas (devem ser implementadas em módulos futuros/existentes)
-#from src.modules.student import retrieve_student
 
 __all__ = [
     'create_class', 'exists_class', 'retrieve_class', 

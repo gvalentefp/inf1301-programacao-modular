@@ -8,6 +8,7 @@ from src.modules.student import (
 from src.persistence import database, initialize_db, save_db
 from src.shared import RETURN_CODES
 from src.domains.course import COURSE_LIST
+from src.modules.subject import create_subject
 
 # --- Fixtures (Dados de Teste) ---
 VALID_ENROLLMENT = 2310488 # Baseado no documento 
@@ -29,10 +30,16 @@ VALID_STUDENT_DATA = {
 class TestStudent(unittest.TestCase):
     
     def setUp(self):
-        """Prepara um estado limpo para cada teste, zerando o banco de dados de alunos."""
+        """Prepara um estado limpo para cada teste."""
+        initialize_db() # Initializing first
+        
         database['students'] = []
-        # Inicializa para garantir que a estrutura base exista
-        initialize_db()
+        database['subjects'] = [] # Clean subjects too
+        
+        # == Create Mock Subjects for Dependencies == #
+        create_subject({'code': 1301, 'credits': 4, 'name': 'Modular', 'description': 'Desc'})
+        create_subject({'code': 1302, 'credits': 4, 'name': 'DB', 'description': 'Desc'})
+        create_subject({'code': 500, 'credits': 4, 'name': 'Old Subject', 'description': 'Desc'})
 
     # --- Testes de Criação (create_student) ---
     
