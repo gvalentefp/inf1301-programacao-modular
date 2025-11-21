@@ -7,6 +7,8 @@ from src.persistence import database
 from src.shared import RETURN_CODES, CONSTANTS
 from src.domains.course import validate_course
 from src.persistence import find_entity_by_pk
+from src.modules.review import delete_review 
+from src.modules.classes import delete_student_reference_from_all_classes 
 
 __all__ = [
     'create_student', 'retrieve_student', 'retrieve_all_students', 
@@ -275,7 +277,7 @@ def update_student(enrollment: int, new_data: Dict) -> int:
     
 def delete_student(enrollment: int) -> int:
     """
-    Objective: Permanently remove a student record from the database.
+    Objective: Permanently remove a student record from the database and clean up all associated data (cascading delete).
     Description: Corresponds to deleta_aluno
     Coupling:
         :param enrollment (int): The student's enrollment ID.
@@ -293,12 +295,23 @@ def delete_student(enrollment: int) -> int:
         return RETURN_CODES['ERROR']
         
     # T1 - Success 
+
+    # 1. Deleção em Cascata de Reviews
+    review_ids_to_delete = list(student.get('reviews', [])) # Usa list() para evitar modificação durante iteração
+    for review_id in review_ids_to_delete:
+        # NOTE: A função delete_review deve ser implementada para LIMPAR as referências 
+        # nos Professores e Turmas afetadas.
+        delete_review(review_id) 
+        
+    # 2. Deleção da Referência em Turmas
+    delete_student_reference_from_all_classes(enrollment)
+
+    # 3. Deleção do Registro Principal (Aluno)
     try:
         database['students'].remove(student)
         return RETURN_CODES['SUCCESS']
     except ValueError:
         return RETURN_CODES['ERROR']
-
 
 # --- Subject Association Functions (Materias) ---
 
@@ -557,5 +570,28 @@ def delete_student_review(enrollment: int, review_id: int) -> int:
     except ValueError:
         return RETURN_CODES['ERROR']
     
+# backend/modules/student.py
+
+def remove_subject_reference_from_all_students(subject_code: int) -> int:
+    """
+    Objective: Remove a specific subject code from the 'subjects' list of ALL students.
+    Description: Maintains data integrity when a Subject is deleted.
+    Coupling:
+        :param subject_code (int): The code of the subject being deleted.
+        :return int: SUCCESS (0).
+    """
+    if not isinstance(subject_code, int) or subject_code <= 0:
+        return RETURN_CODES['ERROR']
+        
+    for student in database['students']:
+        if subject_code in student.get('subjects', []):
+            try:
+                student['subjects'].remove(subject_code)
+            except Exception:
+                continue
+                
+    return RETURN_CODES['SUCCESS']
+    
 # Other functions (student_took_subject, retrieve_student_subjects, etc.) would be implemented here, 
 # following the same detailed documentation format
+

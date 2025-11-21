@@ -484,3 +484,41 @@ def calculate_review_average_professor(prof_id: int) -> float:
     average = total_stars / count
     
     return round(average, 1) # Retorna a média com 1 casa decimal
+
+def remove_review_reference_from_professor(prof_id: int, review_id: int) -> int:
+    """
+    Objective: Remove a review ID reference from the professor's received list. Corresponds to deleta_aval_prof.
+    """
+    professor = repo_retrieve_professor(prof_id)
+    
+    if professor is None or review_id <= 0:
+        return RETURN_CODES['ERROR']
+        
+    if review_id in professor.get('reviews', []):
+        try:
+            professor['reviews'].remove(review_id)
+            return RETURN_CODES['SUCCESS']
+        except ValueError:
+            return RETURN_CODES['ERROR']
+            
+    return RETURN_CODES['ERROR']
+
+def remove_subject_reference_from_all_professors(subject_code: int) -> int:
+    """
+    Objective: Remove a specific subject code from the 'subjects' list of ALL professors.
+    Description: Maintains data integrity when a Subject is deleted.
+    Coupling:
+        :param subject_code (int): The code of the subject being deleted.
+        :return int: SUCCESS (0).
+    """
+    if not isinstance(subject_code, int) or subject_code <= 0:
+        return RETURN_CODES['ERROR']
+        
+    for professor in database['professors']:
+        if subject_code in professor.get('subjects', []):
+            try:
+                professor['subjects'].remove(subject_code)
+            except Exception:
+                continue
+                
+    return RETURN_CODES['SUCCESS']

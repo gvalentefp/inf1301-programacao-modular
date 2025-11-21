@@ -6,6 +6,10 @@ from typing import List, Dict, Union
 from src.persistence import database
 from src.shared import RETURN_CODES
 from src.shared import CONSTANTS
+from src.modules.classes import delete_classes_by_subject
+from src.modules.student import remove_subject_reference_from_all_students
+from src.modules.professor import remove_subject_reference_from_all_professors
+from src.modules.classes import delete_classes_by_subject
 
 __all__ = [
     'create_subject', 'exists_subject', 'retrieve_subject', 
@@ -150,9 +154,9 @@ def update_subject(code: int, new_data: Dict) -> int:
 
 def delete_subject(code: int) -> int:
     """
-    Deletes a subject from the database by its code.
-    Corresponds to deleta_materia
+    Objective: Permanently remove a subject record (PK) and orchestrate the deletion of all dependent records (cascading delete).
     """
+
     # T3 - Validate code parameter 
     if not isinstance(code, int) or code <= 0:
         return RETURN_CODES['ERROR']
@@ -161,10 +165,22 @@ def delete_subject(code: int) -> int:
     subject = repo_retrieve_subject(code)
     if subject is None:
         return RETURN_CODES['ERROR']
-
+    
     # T1 - Success: Remove the subject 
+    # --- ORQUESTRAÇÃO DE LIMPEZA DE REFERÊNCIAS ---
+
+    # 1. Deleção em Cascata de Turmas dependentes
+    delete_classes_by_subject(code)
+    
+    # 2. Limpeza de Referência em Alunos (Histórico)
+    remove_subject_reference_from_all_students(code)
+    
+    # 3. Limpeza de Referência em Professores (Matérias que Lecionam)
+    remove_subject_reference_from_all_professors(code)
+    
+    # 4. Deleção do Registro Principal (Matéria)
     try:
         database['subjects'].remove(subject)
         return RETURN_CODES['SUCCESS']
     except ValueError:
-        return RETURN_CODES['ERROR'] # Should not happen if repo_retrieve_subject worked
+        return RETURN_CODES['ERROR']

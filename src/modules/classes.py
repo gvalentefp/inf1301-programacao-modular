@@ -370,3 +370,102 @@ def associate_review_to_class(class_code: int, review_id: int) -> int:
         
     class_record['reviews_ids'].append(review_id)
     return RETURN_CODES['SUCCESS']
+
+def delete_student_reference_from_all_classes(enrollment: int) -> int:
+    """
+    Objective: Remove a student's enrollment from the 'students_enrollments' list in ALL classes.
+    Description: Maintains integrity when a Student account is deleted.
+    Coupling:
+        :param enrollment (int): The enrollment ID of the student being deleted.
+        :return int: SUCCESS (0).
+    Coupling Conditions:
+        Input Assertions: enrollment is a valid positive integer.
+        Output Assertions: Enrollment ID is removed from all class records' student lists.
+    User Interface: (Internal Log).
+    """
+    if not isinstance(enrollment, int) or enrollment <= 0:
+        return RETURN_CODES['ERROR']
+        
+    for class_record in database['classes']:
+        if enrollment in class_record.get('students_enrollments', []):
+            try:
+                class_record['students_enrollments'].remove(enrollment)
+            except Exception:
+                # Should not happen if existence is checked, but defensive programming.
+                continue
+                
+    return RETURN_CODES['SUCCESS']
+
+def delete_professor_reference_from_all_classes(prof_id: int) -> int:
+    """
+    Objective: Remove a professor's ID from the 'professors_ids' list in ALL classes.
+    Description: Maintains integrity when a Professor record is deleted. If a class loses its last professor, it should be flagged (not implemented here).
+    Coupling:
+        :param prof_id (int): The ID of the professor being deleted.
+        :return int: SUCCESS (0).
+    Coupling Conditions:
+        Input Assertions: prof_id is a valid positive integer.
+        Output Assertions: Prof ID is removed from all class records' professor lists.
+    User Interface: (Internal Log).
+    """
+    if not isinstance(prof_id, int) or prof_id <= 0:
+        return RETURN_CODES['ERROR']
+        
+    for class_record in database['classes']:
+        if prof_id in class_record.get('professors_ids', []):
+            try:
+                class_record['professors_ids'].remove(prof_id)
+            except Exception:
+                continue
+                
+    return RETURN_CODES['SUCCESS']
+
+def delete_classes_by_subject(subject_code: int) -> int:
+    """
+    Objective: Delete ALL class records tied to a specific subject code.
+    Description: Enforces the implicit business rule that a class cannot exist without its subject.
+    Coupling:
+        :param subject_code (int): The code of the subject being deleted.
+        :return int: SUCCESS (0).
+    Coupling Conditions:
+        Input Assertions: subject_code is a valid positive integer.
+        Output Assertions: All class records where 'subject_code' matches are removed from the database.
+    User Interface: (Internal Log).
+    """
+    if not isinstance(subject_code, int) or subject_code <= 0:
+        return RETURN_CODES['ERROR']
+        
+    initial_count = len(database['classes'])
+    
+    # Remove as classes filtrando a lista
+    database['classes'][:] = [
+        class_record for class_record in database['classes'] 
+        if class_record.get('subject_code') != subject_code
+    ]
+    
+    # Verifica se houve remoções
+    if len(database['classes']) < initial_count:
+        return RETURN_CODES['SUCCESS']
+        
+    # Retorna sucesso mesmo que nada tenha sido encontrado, pois o objetivo foi atingido
+    return RETURN_CODES['SUCCESS']
+
+# backend/modules/class_module.py
+
+def remove_review_reference_from_class(class_code: int, review_id: int) -> int:
+    """
+    Objective: Remove a review ID reference from the target class record.
+    """
+    class_record = repo_retrieve_class(class_code)
+    
+    if class_record is None or review_id <= 0:
+        return RETURN_CODES['ERROR']
+        
+    if review_id in class_record.get('reviews_ids', []):
+        try:
+            class_record['reviews_ids'].remove(review_id)
+            return RETURN_CODES['SUCCESS']
+        except ValueError:
+            return RETURN_CODES['ERROR']
+            
+    return RETURN_CODES['ERROR']

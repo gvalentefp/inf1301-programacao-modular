@@ -10,6 +10,10 @@ from src.persistence import find_entity_by_pk
 from src.modules.student import create_student_review 
 from src.modules.professor import create_professor_review 
 from src.modules.classes import associate_review_to_class 
+from src.modules.student import delete_student_review 
+from src.modules.professor import remove_review_reference_from_professor
+from src.modules.classes import remove_review_reference_from_class
+from src.persistence import find_entity_by_pk # Necessário para buscar professores da Turma
 
 __all__ = [
     'create_review', 'retrieve_review', 'update_review', 
@@ -344,7 +348,7 @@ def update_review(review_id: int, new_data: Dict) -> int:
             review_record[key] = value
             
     return RETURN_CODES['SUCCESS']
-
+    
 def delete_review(review_id: int) -> int:
     """
     Objective: Permanently remove a review record from the database.
@@ -357,11 +361,32 @@ def delete_review(review_id: int) -> int:
         Output Assertions: If SUCCESS, the review record is removed from database['reviews'].
     User Interface: (Internal Log).
     """
+
     review_record = repo_retrieve_review(review_id)
     
     if review_record is None:
         return RETURN_CODES['ERROR'] # Review not found
         
+    # --- ORQUESTRAÇÃO DE LIMPEZA DE REFERÊNCIAS ---
+    
+    # 1. Limpar referência do Aluno (Autor)
+    author_enrollment = review_record['student_enrollment']
+    delete_student_review(author_enrollment, review_id)
+    
+    # 2. Limpar referências de Professor e Turma (se houver alvo)
+    class_code = review_record.get('class_target_code')
+    
+    if class_code is not None:
+        # Limpar referência na Turma
+        remove_review_reference_from_class(class_code, review_id)
+        
+        # Limpar referências nos Professores associados à Turma
+        class_record = find_entity_by_pk('classes', class_code, 'code')
+        if class_record:
+            for prof_id in class_record.get('professors_ids', []):
+                remove_review_reference_from_professor(prof_id, review_id)
+
+    # --- DELEÇÃO DO REGISTRO PRINCIPAL ---
     try:
         database['reviews'].remove(review_record)
         return RETURN_CODES['SUCCESS']
