@@ -5,7 +5,7 @@ from src.modules.student import (
     validate_student, create_student_subject, student_took_subject,
     retrieve_student_subjects, update_student_subjects, delete_student_subject
 )
-from src.persistence import database, initialize_db, save_db
+from src.persistence import database, initialize_db, save_db, set_test_mode
 from src.shared import RETURN_CODES
 from src.domains.course import COURSE_LIST
 from src.modules.subject import create_subject
@@ -31,10 +31,15 @@ class TestStudent(unittest.TestCase):
     
     def setUp(self):
         """Prepara um estado limpo para cada teste."""
-        initialize_db() # Initializing first
+        set_test_mode() # <--- FORCE TEST DB
+        initialize_db() 
         
+        # Clean ALL tables
         database['students'] = []
-        database['subjects'] = [] # Clean subjects too
+        database['subjects'] = [] 
+        database['professors'] = []
+        database['classes'] = []
+        database['reviews'] = []
         
         # == Create Mock Subjects for Dependencies == #
         create_subject({'code': 1301, 'credits': 4, 'name': 'Modular', 'description': 'Desc'})

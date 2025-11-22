@@ -3,7 +3,7 @@ from src.modules.credentialing import (
     register_student_account, authenticate_user
 )
 from src.modules.student import retrieve_student
-from src.persistence import database, initialize_db, save_db
+from src.persistence import database, initialize_db, save_db, set_test_mode
 from src.shared import RETURN_CODES
 
 # --- Fixtures (Dados de Teste) ---
@@ -28,10 +28,18 @@ class TestCredentialing(unittest.TestCase):
     
     def setUp(self):
         """Prepara um estado limpo, zerando o banco de dados de alunos."""
-        initialize_db() # First initialize
-        database['students'] = [] # Then we empty
+        set_test_mode()
+        initialize_db() 
+        
+        # Clean ALL tables
+        database['students'] = []
+        database['subjects'] = []
+        database['professors'] = []
+        database['classes'] = []
+        database['reviews'] = []
+        
         save_db()
-
+        
     # --- Testes de Registro (register_student_account) ---
     
     def test_01_register_success(self):

@@ -5,7 +5,7 @@ from src.modules.classes import (
     retrieve_all_classes, _generate_class_id
 )
 
-from src.persistence import database, initialize_db
+from src.persistence import database, initialize_db, set_test_mode
 from src.shared import RETURN_CODES
 from src.modules.subject import create_subject
 from src.modules.professor import create_professor
@@ -40,12 +40,15 @@ class TestClass(unittest.TestCase):
     
     def setUp(self):
         """Prepara um estado limpo e insere dados MOCK."""
+        set_test_mode() # <--- FORCE TEST DB
         initialize_db()
         
+        # Clean ALL tables to be safe
         database['classes'] = []
         database['subjects'] = []
         database['professors'] = []
         database['students'] = []
+        database['reviews'] = [] # Clean reviews too just in case
 
         import src.modules.classes
         src.modules.classes.next_class_id = 1

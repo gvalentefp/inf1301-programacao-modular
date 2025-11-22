@@ -4,7 +4,7 @@ from src.modules.subject import (
     update_subject, delete_subject, validate_subject,
     exists_subject
 )
-from src.persistence import database, initialize_db, save_db
+from src.persistence import database, initialize_db, save_db, set_test_mode
 from src.shared import RETURN_CODES
 
 # Subject fixture (template data)
@@ -20,8 +20,16 @@ class TestSubject(unittest.TestCase):
     
     def setUp(self):
         """Prepares a clean state."""
-        initialize_db()          # 1. Load DB first
-        database['subjects'] = [] # 2. THEN wipe it clean
+        set_test_mode()
+        initialize_db()
+        
+        # Clean ALL tables
+        database['subjects'] = []
+        database['students'] = []
+        database['professors'] = []
+        database['classes'] = []
+        database['reviews'] = []
+        
         save_db()
         
     def tearDown(self):

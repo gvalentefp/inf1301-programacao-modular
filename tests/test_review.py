@@ -4,7 +4,7 @@ from src.modules.review import (
     create_review, retrieve_review, update_review, 
     delete_review, validate_review, retrieve_all_reviews,
 )
-from src.persistence import database, initialize_db
+from src.persistence import database, initialize_db, set_test_mode
 from src.shared import RETURN_CODES
 from src.modules.student import create_student
 from src.modules.subject import create_subject
@@ -38,29 +38,23 @@ class TestReview(unittest.TestCase):
     
     def setUp(self):
         """Prepara um estado limpo e insere dados MOCK."""
+        set_test_mode()
         initialize_db()
         
+        # Clean ALL tables
         database['reviews'] = []
         database['students'] = []
         database['classes'] = []
         database['subjects'] = []
         database['professors'] = []
 
+        # Reset IDs manually if needed (safety net)
         import src.modules.review
         src.modules.review.next_review_id = 1 
         
-        # Reset IDs
         try:
              from src.modules.review import next_review_id
              next_review_id = 1
-        except ImportError: pass
-        try:
-             from src.modules.classes import next_class_id
-             next_class_id = 1
-        except ImportError: pass
-        try:
-             from src.modules.professor import next_professor_id
-             next_professor_id = 1
         except ImportError: pass
 
         # --- Create the Environment Chain ---
@@ -85,7 +79,6 @@ class TestReview(unittest.TestCase):
             'students_enrollments': [],
             'reviews_ids': []
         })
-
     # --- Testes de Validação (validate_review) ---
     def test_01_validate_review_t1_success(self):
         """T1: Retorna SUCESSO quando todos os campos e FKs são válidos."""

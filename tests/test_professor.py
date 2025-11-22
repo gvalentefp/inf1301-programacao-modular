@@ -7,7 +7,8 @@ from src.modules.professor import (
     delete_professor_subject, calculate_review_average_professor,
     _generate_professor_id
 )
-from src.persistence import database, initialize_db, save_db
+# IMPORT set_test_mode HERE
+from src.persistence import database, initialize_db, save_db, set_test_mode
 from src.shared import RETURN_CODES
 from src.domains.department import DEPT_LIST
 from src.modules.subject import create_subject
@@ -21,7 +22,7 @@ VALID_SUBJECT_CODE_2 = 1302
 NON_EXISTENT_PROF_ID = 9999
 
 VALID_PROFESSOR_DATA = {
-    'name': 'Flavio Heleno Bevilacqua E Silva', # Nome de exemplo do documento [cite: 162]
+    'name': 'Flavio Heleno Bevilacqua E Silva', 
     'department': VALID_DEPT
 }
 
@@ -29,9 +30,15 @@ class TestProfessor(unittest.TestCase):
     
     def setUp(self):
         """Prepara um estado limpo para cada teste."""
+        # 1. FORCE TEST MODE (Fixes the issue where it read db.json)
+        set_test_mode()
+
+        # 2. Initialize and Clean Memory
         initialize_db() 
         database['professors'] = []
         database['subjects'] = []
+        database['reviews'] = []     # <--- CLEARS OLD REVIEWS
+        database['students'] = []    
         save_db()
 
         import src.modules.professor 
@@ -49,7 +56,6 @@ class TestProfessor(unittest.TestCase):
         ret_code = create_professor(VALID_PROFESSOR_DATA)
         self.assertEqual(ret_code, RETURN_CODES['SUCCESS'])
         self.assertEqual(len(database['professors']), 1)
-        # O ID deve ser 1 na primeira execução
         self.assertEqual(database['professors'][0]['id'], VALID_PROF_ID)
         
     def test_02_create_professor_nok_invalid_department(self):
@@ -108,7 +114,6 @@ class TestProfessor(unittest.TestCase):
         src.modules.professor.next_professor_id = 1
         
         # 3. CREATE the professor first (so ID 1 exists)
-        # We use 'INF' because we know it is valid
         create_professor({'name': 'Old Name', 'department': 'INF'}) 
 
         # 4. UPDATE (Change 'MAT' to 'MATH')
@@ -151,7 +156,7 @@ class TestProfessor(unittest.TestCase):
         ret_code = delete_professor(NON_EXISTENT_PROF_ID)
         self.assertEqual(ret_code, RETURN_CODES['ERROR'])
 
-    # --- Testes de Associação de Matérias (cria_materia_prof, prof_ensina_materia) ---
+    # --- Testes de Associação de Matérias ---
     
     def test_11_create_professor_subject_success(self):
         """Retorna SUCESSO e associa a matéria ao professor."""
@@ -190,7 +195,7 @@ class TestProfessor(unittest.TestCase):
         self.assertNotIn(500, retrieve_professor_subjects(VALID_PROF_ID))
         self.assertIn(600, retrieve_professor_subjects(VALID_PROF_ID))
         
-    # --- Testes de Média de Avaliação (calculate_review_average_professor) ---
+    # --- Testes de Média de Avaliação ---
 
     def test_15_calculate_average_no_reviews(self):
         """Retorna 0.0 se não houver avaliações."""
@@ -206,7 +211,7 @@ class TestProfessor(unittest.TestCase):
         self.assertEqual(average, -1.0)
         
     def test_17_calculate_average_placeholder_value(self):
-        """Verifica se o placeholder de cálculo retorna o valor esperado (3.5 neste caso simulado)."""
+        """Verifica se o placeholder de cálculo retorna o valor esperado (4.2 neste caso simulado)."""
         print("\nCaso de Teste 17 - Média: Valor placeholder")
         create_professor(VALID_PROFESSOR_DATA) # ID 1
         
@@ -220,12 +225,9 @@ class TestProfessor(unittest.TestCase):
         
         # Link to professor
         database['professors'][0]['reviews'] = [1, 2, 3, 4]
-        average = calculate_review_average_professor(VALID_PROF_ID) #  [4, 5, 3, 5] -> values used for avarage
+        average = calculate_review_average_professor(VALID_PROF_ID) # (4+5+3+5)/4 = 4.25 -> round 4.2
         
-        self.assertEqual(average, 4.2) # Python was rounding down the avarage from 4.25 to 4.2 instead of 4.3
-        
+        self.assertEqual(average, 4.2)
 
-# Para executar os testes
 if __name__ == '__main__':
-    # Você precisará configurar o PYTHONPATH ou o __init__.py corretamente
     unittest.main(argv=['first-arg-is-ignored'], exit=False)
