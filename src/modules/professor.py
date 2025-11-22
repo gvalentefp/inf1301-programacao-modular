@@ -24,11 +24,26 @@ __all__ = [
 next_professor_id = 1 
 
 def _generate_professor_id() -> int:
-    """Gera um novo ID único para Professor."""
+    """
+    Gera um novo ID único para Professor baseado no conteúdo atual do banco.
+    Isso garante que, depois de initialize_db() (que limpa o JSON em cada teste),
+    o primeiro professor criado receba sempre ID = 1.
+    """
     global next_professor_id
-    id_atual = next_professor_id
-    next_professor_id += 1
-    return id_atual
+
+    profs = database.get('professors')
+    if not isinstance(profs, list):
+        profs = []
+        database['professors'] = profs
+
+    max_id = 0
+    for prof in profs:
+        pid = prof.get('id')
+        if isinstance(pid, int) and pid > max_id:
+            max_id = pid
+
+    next_professor_id = max_id + 1
+    return next_professor_id
 
 # --- Repository Functions (Internal) ---
 
