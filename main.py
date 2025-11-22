@@ -5,7 +5,7 @@ Includes functionality to run all unit tests before launching the application in
 """
 import unittest
 import sys
-from src.persistence import initialize_db, save_db
+from src.persistence import initialize_db, save_db, set_test_mode, set_prod_mode
 from src.shared import RETURN_CODES
 from interface import run_frontend
 
@@ -16,32 +16,28 @@ def run_all_unit_tests() -> bool:
     """
     print("\n--- Running All Unit Tests (TDD Check) ---")
     
-    # Cria um TestLoader
+    # 1. Enable Test Mode (Protects real data)
+    set_test_mode()
+
     loader = unittest.TestLoader()
-    # Descobre todos os testes no diretório 'tests'
     suite = loader.discover('tests', pattern='test_*.py')
-    
-    # Cria um TestRunner que executa os testes
-    # O verbosity=2 mostra o nome de cada caso de teste (similar ao relatório)
     runner = unittest.TextTestRunner(verbosity=2)
     
-    # Redireciona temporariamente a saída para capturar o resultado
-    # Isso é opcional, mas garante que a saída dos testes não interfira no frontend.
-    
-    # Para simplificar a rodagem, vamos usar o runner padrão:
+    # EXECUTE ONCE
     results = runner.run(suite)
-    
+
+    # 2. Disable Test Mode (Back to real data)
+    set_prod_mode()
+
     print("--- Test Execution Summary ---")
-    # Imprime o resumo no formato solicitado (sem modificar a saída interna do unittest)
     print(f"Ran {results.testsRun} tests.")
+    
     if results.wasSuccessful():
         print("Test Result: ✔ ALL TESTS PASSED.")
         return True
     else:
-        # A saída de erro e falha detalhada é impressa pelo TextTestRunner.
         print(f"Test Result: FAILED (Failures={len(results.failures)}, Errors={len(results.errors)})")
         return False
-
 
 def main():
     """

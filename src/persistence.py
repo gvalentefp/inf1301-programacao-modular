@@ -81,3 +81,16 @@ def find_entity_by_pk(entity_name: str, pk_value: Union[int, str], pk_field: str
         if entity.get(pk_field) == pk_value:
             return entity
     return None
+
+# === Functions for testing === #
+def set_test_mode():
+    """Switches the database file to a temporary test file."""
+    global DB_FILE
+    DB_FILE = os.path.join('data', 'test_db.json')
+    print("Persistence: Switched to TEST mode (data/test_db.json)")
+
+def set_prod_mode():
+    """Switches the database file back to the real production file."""
+    global DB_FILE
+    DB_FILE = os.path.join('data', 'db.json')
+    print("Persistence: Switched to PRODUCTION mode (data/db.json)")

@@ -1,7 +1,157 @@
 {
-    "students": [],
-    "professors": [],
-    "subjects": [],
-    "classes": [],
-    "reviews": []
+    "students": [
+        {
+            "enrollment": 2310488,
+            "username": "lucasbrito",
+            "password": "puc123",
+            "name": "Lucas Brito",
+            "institutional_email": "lucas@puc-rio.br",
+            "course": "CIEN_COMP",
+            "subjects": [
+                1301,
+                1302
+            ],
+            "reviews": [
+                1
+            ],
+            "profile_private": true
+        },
+        {
+            "enrollment": 2320615,
+            "username": "gabrielpires",
+            "password": "puc123",
+            "name": "Gabriel Pires",
+            "institutional_email": "gabriel@puc-rio.br",
+            "course": "ENG_COMP",
+            "subjects": [],
+            "reviews": [
+                2
+            ],
+            "profile_private": false
+        }
+    ],
+    "professors": [
+        {
+            "id": 1,
+            "name": "Flavio Heleno Bevilacqua E Silva",
+            "department": "INF",
+            "subjects": [
+                1301
+            ],
+            "reviews": [
+                1
+            ]
+        },
+        {
+            "id": 2,
+            "name": "Marcus Poggi",
+            "department": "INF",
+            "subjects": [
+                1302
+            ],
+            "reviews": [
+                2
+            ]
+        }
+    ],
+    "subjects": [
+        {
+            "code": 1301,
+            "credits": 4,
+            "name": "Programação Modular",
+            "description": "Introduction to Modular Design and Architecture."
+        },
+        {
+            "code": 1302,
+            "credits": 4,
+            "name": "Banco de Dados",
+            "description": "Relational Algebra and SQL."
+        },
+        {
+            "code": 1101,
+            "credits": 6,
+            "name": "Cálculo 1",
+            "description": "Limits, Derivatives, and Integrals."
+        }
+    ],
+    "classes": [
+        {
+            "code": 101,
+            "subject_code": 1301,
+            "period": 20242,
+            "schedule": [
+                {
+                    "day": "TUE",
+                    "start_time": 9,
+                    "end_time": 11
+                },
+                {
+                    "day": "THU",
+                    "start_time": 9,
+                    "end_time": 11
+                }
+            ],
+            "professors_ids": [
+                1
+            ],
+            "students_enrollments": [
+                2310488
+            ],
+            "reviews_ids": [
+                1
+            ]
+        },
+        {
+            "code": 102,
+            "subject_code": 1302,
+            "period": 20242,
+            "schedule": [
+                {
+                    "day": "MON",
+                    "start_time": 15,
+                    "end_time": 17
+                },
+                {
+                    "day": "WED",
+                    "start_time": 15,
+                    "end_time": 17
+                }
+            ],
+            "professors_ids": [
+                2
+            ],
+            "students_enrollments": [
+                2320615
+            ],
+            "reviews_ids": [
+                2
+            ]
+        }
+    ],
+    "reviews": [
+        {
+            "id_aval": 1,
+            "student_enrollment": 2310488,
+            "date_time": "2025-11-20T10:00:00",
+            "title": "Great Class!",
+            "comment": "The modular approach really helps organize code.",
+            "category": "PROF_GOOD",
+            "is_anonymous": false,
+            "stars": 5,
+            "class_target_code": 101,
+            "mentions": ""
+        },
+        {
+            "id_aval": 2,
+            "student_enrollment": 2320615,
+            "date_time": "2025-11-21T14:30:00",
+            "title": "Difficult Exams",
+            "comment": "Study hard for the P2, it covers everything.",
+            "category": "SUBJECT_DIFFICULT",
+            "is_anonymous": true,
+            "stars": 3,
+            "class_target_code": 102,
+            "mentions": ""
+        }
+    ]
 }
