@@ -96,7 +96,6 @@ def handle_view_professors():
             # A chamada direta será feita no módulo professor (calcula_review_average_professor)
             print(f"ID {prof['id']} | Name: {prof['name']} | Dept: {prof['department']}")
 
-
 def run_frontend():
     """The main loop for the CLI interface."""
     global CURRENT_USER

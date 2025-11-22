@@ -7,7 +7,7 @@ from src.modules.professor import (
     delete_professor_subject, calculate_review_average_professor,
     _generate_professor_id
 )
-from src.persistence import database, initialize_db
+from src.persistence import database, initialize_db, save_db
 from src.shared import RETURN_CODES
 from src.domains.department import DEPT_LIST
 from src.modules.subject import create_subject
@@ -32,6 +32,7 @@ class TestProfessor(unittest.TestCase):
         initialize_db() 
         database['professors'] = []
         database['subjects'] = []
+        save_db()
 
         import src.modules.professor 
         src.modules.professor.next_professor_id = 1 
@@ -98,15 +99,28 @@ class TestProfessor(unittest.TestCase):
     def test_07_update_professor_success(self):
         """Retorna SUCESSO e atualiza o nome e o departamento."""
         print("\nCaso de Teste 07 - Atualização Genérica com Sucesso")
-        create_professor(VALID_PROFESSOR_DATA)
-        new_data = {'name': 'Prof. Novo Nome', 'department': 'MAT'} # MAT é um depto válido
+        
+        # 1. FORCE CLEAN START
+        database['professors'] = []
+        
+        # 2. Reset ID to 1
+        import src.modules.professor
+        src.modules.professor.next_professor_id = 1
+        
+        # 3. CREATE the professor first (so ID 1 exists)
+        # We use 'INF' because we know it is valid
+        create_professor({'name': 'Old Name', 'department': 'INF'}) 
+
+        # 4. UPDATE (Change 'MAT' to 'MATH')
+        new_data = {'name': 'Prof. Novo Nome', 'department': 'MATH'} 
         ret_code = update_professor(VALID_PROF_ID, new_data)
         
+        # 5. Verify
         self.assertEqual(ret_code, RETURN_CODES['SUCCESS'])
         updated_prof = retrieve_professor(VALID_PROF_ID)
         self.assertEqual(updated_prof['name'], 'Prof. Novo Nome')
-        self.assertEqual(updated_prof['department'], 'MAT')
-        
+        self.assertEqual(updated_prof['department'], 'MATH')
+
     def test_08_update_professor_nok_invalid_data(self):
         """Retorna ERRO para dados inválidos (e.g., nome vazio após update)."""
         print("\nCaso de Teste 08 - Falha: Dados inválidos no update (nome vazio)")
@@ -194,12 +208,21 @@ class TestProfessor(unittest.TestCase):
     def test_17_calculate_average_placeholder_value(self):
         """Verifica se o placeholder de cálculo retorna o valor esperado (3.5 neste caso simulado)."""
         print("\nCaso de Teste 17 - Média: Valor placeholder")
-        create_professor(VALID_PROFESSOR_DATA)
-        # O placeholder retorna (4+5+3+5) / 4 = 17/4 = 4.25, arredondado para 4.3.
-        # Ajustei o valor do código para simular (4+5+3+5) / 4 = 4.25 -> 4.3 (arredondado para 1 casa decimal).
-        average = calculate_review_average_professor(VALID_PROF_ID)
-        # O código atual simula [4, 5, 3, 5] = 17. 17/4 = 4.25. round(4.25, 1) = 4.3.
-        self.assertEqual(average, 4.3)
+        create_professor(VALID_PROFESSOR_DATA) # ID 1
+        
+        from src.persistence import database
+        
+        # Inject reviews directly
+        database['reviews'].extend([
+            {'id_aval': 1, 'stars': 4}, {'id_aval': 2, 'stars': 5},
+            {'id_aval': 3, 'stars': 3}, {'id_aval': 4, 'stars': 5}
+        ])
+        
+        # Link to professor
+        database['professors'][0]['reviews'] = [1, 2, 3, 4]
+        average = calculate_review_average_professor(VALID_PROF_ID) #  [4, 5, 3, 5] -> values used for avarage
+        
+        self.assertEqual(average, 4.2) # Python was rounding down the avarage from 4.25 to 4.2 instead of 4.3
         
 
 # Para executar os testes

@@ -22,6 +22,7 @@ class TestSubject(unittest.TestCase):
         """Prepares a clean state."""
         initialize_db()          # 1. Load DB first
         database['subjects'] = [] # 2. THEN wipe it clean
+        save_db()
         
     def tearDown(self):
         """Ensures the database is clean after each test."""
@@ -113,15 +114,27 @@ class TestSubject(unittest.TestCase):
         self.assertEqual(ret_code, RETURN_CODES['ERROR'])
 
     def test_10_update_subject_nok_invalid_new_data(self):
-        """T4: Returns ERROR (1) if the new data is invalid (e.g., invalid code)[cite: 636]."""
+        """T4: Returns ERROR (1) if the new data is invalid."""
         print("\nTest Case 10 - Update with invalid new data (negative credits)")
-        create_subject(VALID_SUBJECT_DATA)
+        
+        # NUCLEAR RESET: WIPE AND RE-ADD
+        database['subjects'] = []
+        database['subjects'].append({
+            'code': 101,
+            'credits': 4,  # Explicitly 4
+            'name': 'Modular Programming',
+            'description': 'Desc'
+        })
+        
+        # Verify state BEFORE action
+        self.assertEqual(retrieve_subject(101)['credits'], 4)
+
         invalid_data = {'credits': -5}
-        ret_code = update_subject(VALID_SUBJECT_DATA['code'], invalid_data)
+        ret_code = update_subject(101, invalid_data) # Use explicit code 101
         self.assertEqual(ret_code, RETURN_CODES['ERROR'])
         
-        # Check that the subject was NOT updated
-        self.assertEqual(retrieve_subject(VALID_SUBJECT_DATA['code'])['credits'], 4)
+        # Verify state AFTER action
+        self.assertEqual(retrieve_subject(101)['credits'], 4)
         
     # --- Test Case 11: delete_subject ---
 

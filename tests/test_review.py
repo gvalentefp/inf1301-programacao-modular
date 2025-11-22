@@ -40,6 +40,15 @@ class TestReview(unittest.TestCase):
         """Prepara um estado limpo e insere dados MOCK."""
         initialize_db()
         
+        database['reviews'] = []
+        database['students'] = []
+        database['classes'] = []
+        database['subjects'] = []
+        database['professors'] = []
+
+        import src.modules.review
+        src.modules.review.next_review_id = 1 
+        
         # Reset IDs
         try:
              from src.modules.review import next_review_id
