@@ -18,9 +18,9 @@ def display_menu():
     else:
         print("\n--- Welcome to Filhos da PUC ---")
     
-    print("1. Register New Student Account")
-    print("2. Login")
-    
+        print("1. Register New Student Account")
+        print("2. Login")
+        
     if CURRENT_USER:
         print("3. View My Subjects")
         print("4. View All Professors")
