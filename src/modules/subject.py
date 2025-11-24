@@ -14,12 +14,18 @@ __all__ = [
 ]
 
 # --- Repository Functions (Private/Internal) ---
-# Functions prefixed with repo_ 
 
 def repo_create_subject(data: Dict) -> int:
     """
-    Adds a subject dictionary to the global database['subjects'] list.
-    Corresponds to repo_cria_materia
+    Objective: Persist a new subject in the database.
+    Description: Low-level function that appends the subject dictionary to the global list. Corresponds to repo_cria_materia.
+    Coupling:
+        :param data (Dict): The subject dictionary representing the entity.
+        :return int: SUCCESS (0) or ERROR (1).
+    Coupling Conditions:
+        Input Assertions: data is a valid dictionary.
+        Output Assertions: data is appended to database['subjects'].
+    User Interface: (Internal Log).
     """
     try:
         database['subjects'].append(data)
@@ -29,24 +35,34 @@ def repo_create_subject(data: Dict) -> int:
 
 def repo_retrieve_subject(code: int) -> Union[Dict, None]:
     """
-    Searches for a subject dictionary by its code (primary key).
-    Corresponds to repo_busca_materia
+    Objective: Search for a subject record by its primary key.
+    Description: Iterates through the database to find a match. Corresponds to repo_busca_materia.
+    Coupling:
+        :param code (int): The unique code of the subject.
+        :return Union[Dict, None]: The subject dictionary if found, otherwise None.
+    Coupling Conditions:
+        Input Assertions: code is an integer.
+        Output Assertions: Returns the reference to the dictionary where dict['code'] == code.
+    User Interface: (Internal Log).
     """
     for subject in database['subjects']:
         if subject.get('code') == code:
             return subject
     return None
 
-# Placeholder for other repo functions (to be implemented later if needed)
-
 # --- Public Access Functions ---
 
 def validate_subject(data: Dict) -> int:
     """
-    Validates mandatory fields and integrity constraints for a Subject.
-    Corresponds to valida_materia
-    
-    Subject structure (dict): {'code': int (pk), 'credits': int, 'name': str, 'description': str}
+    Objective: Verify the integrity and format of subject data.
+    Description: Checks if mandatory fields (code, credits, name) exist and respect constraints (types, length, values). Corresponds to valida_materia.
+    Coupling:
+        :param data (Dict): Dictionary containing subject data.
+        :return int: SUCCESS (0) or ERROR (1).
+    Coupling Conditions:
+        Input Assertions: data is a dictionary.
+        Output Assertions: Returns SUCCESS only if 'code' > 0, 'credits' >= 0, and 'name' is non-empty and within max length.
+    User Interface: (Internal Log).
     """
     if not isinstance(data, dict):
         return RETURN_CODES['ERROR'] # T4 - Data is invalid 
@@ -70,8 +86,15 @@ def validate_subject(data: Dict) -> int:
 
 def create_subject(data: Dict) -> int:
     """
-    Creates a new subject and adds it to the database.
-    Corresponds to cria_materia
+    Objective: Create a new subject entity in the system.
+    Description: Orchestrates validation, uniqueness check, and persistence. Corresponds to cria_materia.
+    Coupling:
+        :param data (Dict): Dictionary containing all required fields for the subject.
+        :return int: SUCCESS (0) or ERROR (1).
+    Coupling Conditions:
+        Input Assertions: data is not None. data contains valid fields (checked by validate_subject). data['code'] must not already exist.
+        Output Assertions: If SUCCESS, the new subject is stored in the database.
+    User Interface: Log "Subject {code} created successfully" (Internal Log).
     """
     # T2 - Check if data pointer is NULL (data is None) 
     if data is None:
@@ -90,8 +113,15 @@ def create_subject(data: Dict) -> int:
 
 def retrieve_subject(code: int) -> Union[Dict, None]:
     """
-    Finds and returns a subject by its code.
-    Corresponds to busca_materia
+    Objective: Retrieve a specific subject's details.
+    Description: Public interface to search for a subject. Corresponds to busca_materia.
+    Coupling:
+        :param code (int): Subject's unique code.
+        :return Union[Dict, None]: The subject object or None if not found/invalid.
+    Coupling Conditions:
+        Input Assertions: code must be a positive integer.
+        Output Assertions: Returns the subject dictionary matching the code.
+    User Interface: (Internal Log).
     """
     # T3 - Validate code parameter (Assuming non-positive is invalid) 
     if not isinstance(code, int) or code <= 0:
@@ -102,16 +132,29 @@ def retrieve_subject(code: int) -> Union[Dict, None]:
     
 def retrieve_all_subjects() -> List[Dict]:
     """
-    Returns a list of all subjects.
-    Corresponds to busca_todas_materias
+    Objective: List all registered subjects.
+    Description: Returns a complete list of subjects available in the system. Corresponds to busca_todas_materias.
+    Coupling:
+        :return List[Dict]: A list containing all subject dictionaries.
+    Coupling Conditions:
+        Input Assertions: None.
+        Output Assertions: Returns a list (can be empty).
+    User Interface: (Internal Log).
     """
     # Assuming the in-memory structure is always accessible. Returns a copy.
     return list(database['subjects'])
 
 def exists_subject(data: Dict) -> int:
     """
-    Checks if a subject with the same code already exists.
-    Corresponds to existe_materia
+    Objective: Check if a subject is already registered based on its code.
+    Description: Validates the input structure and checks existence in the repository. Corresponds to existe_materia.
+    Coupling:
+        :param data (Dict): A dictionary containing at least the 'code'.
+        :return int: SUCCESS (0) if it exists, ERROR (1) if it does not or input is invalid.
+    Coupling Conditions:
+        Input Assertions: data is valid structure.
+        Output Assertions: Returns SUCCESS if repo_retrieve_subject finds the code.
+    User Interface: (Internal Log).
     """
     if validate_subject(data) != RETURN_CODES['SUCCESS']:
         return RETURN_CODES['ERROR']
@@ -122,8 +165,16 @@ def exists_subject(data: Dict) -> int:
 
 def update_subject(code: int, new_data: Dict) -> int:
     """
-    Updates the data of an existing subject.
-    Corresponds to atualiza_materia
+    Objective: Update the information of an existing subject.
+    Description: Modifies fields of a subject identified by code. Ensures the new data is valid. Corresponds to atualiza_materia.
+    Coupling:
+        :param code (int): The code of the subject to update.
+        :param new_data (Dict): Dictionary containing the updated fields.
+        :return int: SUCCESS (0) or ERROR (1).
+    Coupling Conditions:
+        Input Assertions: code must exist in DB. new_data must be valid (validated via temp copy to preserve PK).
+        Output Assertions: If SUCCESS, the subject record in DB is modified with values from new_data (except 'code').
+    User Interface: Log "Subject {code} updated" (Internal Log).
     """
     # T2 - Check if the subject exists 
     subject = repo_retrieve_subject(code)
@@ -150,7 +201,15 @@ def update_subject(code: int, new_data: Dict) -> int:
 
 def delete_subject(code: int) -> int:
     """
-    Objective: Permanently remove a subject record (PK) and orchestrate the deletion of all dependent records (cascading delete).
+    Objective: Permanently remove a subject record and enforce referential integrity.
+    Description: Orchestrates a cascading delete. Removes dependent Classes (Turmas), and cleans references in Student History and Professor records before deleting the Subject itself. Corresponds to remove_materia.
+    Coupling:
+        :param code (int): The code of the subject to delete.
+        :return int: SUCCESS (0) or ERROR (1).
+    Coupling Conditions:
+        Input Assertions: code is a positive integer. Subject must exist.
+        Output Assertions: If SUCCESS, subject is removed from DB and all references in Classes, Students, and Professors are cleared.
+    User Interface: Log "Subject {code} and dependencies deleted" (Internal Log).
     """
     
     from src.modules.classes import delete_classes_by_subject

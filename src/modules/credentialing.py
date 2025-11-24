@@ -5,6 +5,9 @@ It ensures the user (Student) has valid credentials to access the system.
 from typing import Dict, Union
 from src.shared import RETURN_CODES
 from src.modules.student import create_student, retrieve_student, validate_student
+
+from src.persistence import database
+
 # Importação mockada para checagem de vínculo institucional
 # from external_api.puc_registrar import check_puc_link 
 
@@ -52,7 +55,7 @@ def register_student_account(student_data: Dict) -> int:
         Output Assertions: If SUCCESS, a new student record is created and persistent.
     User Interface: Log success or error message.
     """
-    # 1. Basic data validation (completeness and format)
+    # 1.    
     if validate_student(student_data) != RETURN_CODES['SUCCESS']:
         print("User Message: Registration failed. Invalid or incomplete data provided.")
         return RETURN_CODES['ERROR']
@@ -62,6 +65,15 @@ def register_student_account(student_data: Dict) -> int:
         print("User Message: Registration failed. Enrollment and institutional email do not match PUC-Rio records.")
         return RETURN_CODES['ERROR']
 
+    # --- NOVA VERIFICAÇÃO: USERNAME ÚNICO ---
+    # Verifica se o username já existe no banco antes de tentar criar
+    students = database.get('students', [])
+    for s in students:
+        if s['username'] == student_data['username']:
+            print(f"User Message: Registration failed. Username '{student_data['username']}' is already taken.")
+            return RETURN_CODES['ERROR']
+    # ----------------------------------------
+
     # 3. Attempt to create the student record (handles PK conflict check internally)
     result = create_student(student_data)
     
@@ -69,7 +81,7 @@ def register_student_account(student_data: Dict) -> int:
         print(f"User Message: Account created successfully for {student_data['username']}.")
         return RETURN_CODES['SUCCESS']
     else:
-        print("User Message: Registration failed. Enrollment or username may already exist.")
+        print("User Message: Registration failed. Enrollment may already exist.")
         return RETURN_CODES['ERROR']
 
 # --- Authentication ---

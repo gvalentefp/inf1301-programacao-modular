@@ -1,7 +1,7 @@
 """
 Main Controller Module.
-Objective: Orchestrates the system: loads persistent data, runs the application loop (frontend), and saves data upon exit.
-Includes functionality to run all unit tests before launching the application interface.
+Objective: Orchestrates the system lifecycle: TDD verification, data loading, user interaction, and data persistence.
+Requirement: The system must validate integrity (tests) before running and ensure data is saved upon exit.
 """
 import unittest
 import sys
@@ -11,8 +11,14 @@ from interface import run_frontend
 
 def run_all_unit_tests() -> bool:
     """
-    Runs all tests in the 'tests' directory using unittest discover.
-    Returns True if all tests passed (OK), False otherwise (FAILED or ERROR).
+    Objective: Execute the complete suite of unit tests to ensure system integrity.
+    Description: Switches the persistence layer to 'Test Mode' to protect production data, discovers tests in the 'tests/' directory, and runs them using Python's unittest framework.
+    Coupling:
+        :return bool: True if ALL tests pass, False otherwise.
+    Coupling Conditions:
+        Input Assertions: The 'tests' directory exists and contains valid 'test_*.py' files.
+        Output Assertions: Returns True only if results.wasSuccessful() is True. Returns False if any failure or error occurs.
+    User Interface: Prints test execution details and final summary (PASSED/FAILED) to stdout.
     """
     print("\n--- Running All Unit Tests (TDD Check) ---")
     
@@ -41,7 +47,14 @@ def run_all_unit_tests() -> bool:
 
 def main():
     """
-    Initializes the database, runs unit tests, starts the frontend interface, and saves data on termination.
+    Objective: Main entry point of the application.
+    Description: Controls the execution flow: 1. Runs Tests (Aborts if failed), 2. Loads Data, 3. Starts Frontend CLI, 4. Saves Data on exit.
+    Coupling:
+        :return: None.
+    Coupling Conditions:
+        Input Assertions: None.
+        Output Assertions: System exits with code 1 if tests fail. Data is persisted if application closes normally.
+    User Interface: Logs system status messages (Start, Error, Save, Exit).
     """
     print("--- Filhos da PUC System ---")
     

@@ -1,6 +1,6 @@
 """
 Module responsible for loading and saving data (JSON).
-Requirement: The system must persist data, not just in memory[cite: 209].
+Requirement: The system must persist data, not just in memory.
 """
 
 import json
@@ -8,7 +8,7 @@ import os
 from src.shared import RETURN_CODES
 from typing import Union, Dict, List
 
-__all__ = ['initialize_db', 'save_db', 'database']
+__all__ = ['initialize_db', 'save_db', 'database', 'find_entity_by_pk', 'set_test_mode', 'set_prod_mode']
 
 DB_FILE = os.path.join('data', 'db.json')
 
@@ -22,7 +22,16 @@ database = {
 }
 
 def initialize_db():
-    """Loads the JSON into memory or creates an empty structure."""
+    """
+    Objective: Initialize the system's persistence layer by loading data into memory.
+    Description: Corresponds to inicializa_banco. It handles the creation of the storage directory/file if they don't exist and manages empty files to prevent JSON errors.
+    Coupling:
+        :return int: SUCCESS (0) or ERROR (1).
+    Coupling Conditions:
+        Input Assertions: DB_FILE path is valid (OS handled).
+        Output Assertions: The global 'database' variable is populated with data from disk OR initialized with empty lists if the file is new/empty.
+    User Interface: Log warnings if file is empty or errors if loading fails.
+    """
     global database
     
     # Create folder if it doesn't exist
@@ -49,7 +58,16 @@ def initialize_db():
         return RETURN_CODES['ERROR']
 
 def save_db():
-    """Persists the current memory state to the JSON file."""
+    """
+    Objective: Persist the current state of the memory to the file system.
+    Description: Corresponds to salva_banco. Dumps the global 'database' dictionary into a JSON file.
+    Coupling:
+        :return int: SUCCESS (0) or ERROR (1).
+    Coupling Conditions:
+        Input Assertions: Global 'database' must be a serializable dictionary.
+        Output Assertions: The file at DB_FILE contains the exact JSON representation of 'database'.
+    User Interface: Log errors if write permission fails.
+    """
     try:
         with open(DB_FILE, 'w', encoding='utf-8') as f:
             json.dump(database, f, indent=4, ensure_ascii=False)
@@ -61,7 +79,7 @@ def save_db():
 def find_entity_by_pk(entity_name: str, pk_value: Union[int, str], pk_field: str) -> Union[Dict, None]:
     """
     Objective: Searches for an entity (subject, professor, etc.) by its primary key (PK) 
-               in the global database.
+                in the global database.
     Description: Provides a generic repository search to break circular dependencies.
     Coupling:
         :param entity_name (str): The list name in the database dict (e.g., 'subjects', 'professors').
@@ -84,13 +102,31 @@ def find_entity_by_pk(entity_name: str, pk_value: Union[int, str], pk_field: str
 
 # === Functions for testing === #
 def set_test_mode():
-    """Switches the database file to a temporary test file."""
+    """
+    Objective: Configure the persistence layer for the Testing Environment.
+    Description: Redirects database operations to a temporary file ('test_db.json') to avoid corrupting production data during unit tests.
+    Coupling:
+        :return: None.
+    Coupling Conditions:
+        Input Assertions: None.
+        Output Assertions: Global DB_FILE points to 'data/test_db.json'.
+    User Interface: Log "Switched to TEST mode".
+    """
     global DB_FILE
     DB_FILE = os.path.join('data', 'test_db.json')
     print("Persistence: Switched to TEST mode (data/test_db.json)")
 
 def set_prod_mode():
-    """Switches the database file back to the real production file."""
+    """
+    Objective: Configure the persistence layer for the Production Environment.
+    Description: Redirects database operations back to the main file ('db.json').
+    Coupling:
+        :return: None.
+    Coupling Conditions:
+        Input Assertions: None.
+        Output Assertions: Global DB_FILE points to 'data/db.json'.
+    User Interface: Log "Switched to PRODUCTION mode".
+    """
     global DB_FILE
     DB_FILE = os.path.join('data', 'db.json')
     print("Persistence: Switched to PRODUCTION mode (data/db.json)")
