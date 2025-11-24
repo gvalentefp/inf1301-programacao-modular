@@ -303,7 +303,7 @@ def handle_add_subject():
             if exists_class(class_data) == RETURN_CODES['ERROR']:
                 for prof_id in professor_ids:
                     if create_professor_subject(prof_id, code) == RETURN_CODES['ERROR']:
-                        print(f">> Error adding subject {code} to professor ID {prof_id}!")
+                        print(f">> Subject {code} not added to professor ID {prof_id}!")
                     else: 
                         print(f">> Subject {code} added to professor ID {prof_id} successfully!")
                 resultado = create_class(class_data) # adds to database a new class record

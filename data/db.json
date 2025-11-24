@@ -73,6 +73,21 @@
                 1
             ],
             "profile_private": true
+        },
+        {
+            "enrollment": 333,
+            "username": "testeaula",
+            "password": "senha",
+            "name": "Teste",
+            "institutional_email": "testeaula@puc-rio.br",
+            "course": "CIEN_COMP",
+            "subjects": [
+                1301
+            ],
+            "reviews": [
+                1
+            ],
+            "profile_private": true
         }
     ],
     "professors": [
@@ -203,6 +218,25 @@
             "reviews_ids": [
                 1
             ]
+        },
+        {
+            "code": 1,
+            "subject_code": 1301,
+            "period": 20251,
+            "schedule": [
+                {
+                    "day": "FRI",
+                    "start_time": 8,
+                    "end_time": 10
+                }
+            ],
+            "professors_ids": [
+                1
+            ],
+            "students_enrollments": [
+                333
+            ],
+            "reviews_ids": []
         }
     ],
     "reviews": [
@@ -323,6 +357,18 @@
             "category": "PROF_BAD",
             "is_anonymous": false,
             "stars": 4,
+            "class_target_code": 103,
+            "mentions": ""
+        },
+        {
+            "id_aval": 1,
+            "student_enrollment": 333,
+            "date_time": "2025-11-24T08:07:22.372786",
+            "title": "Professor Atrasado",
+            "comment": "Ele chegava muito em cima da hora",
+            "category": "PROF_BAD",
+            "is_anonymous": false,
+            "stars": 1,
             "class_target_code": 103,
             "mentions": ""
         }

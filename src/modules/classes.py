@@ -13,7 +13,8 @@ __all__ = [
 ]
 
 # Variável global para gerar IDs sequenciais para Turmas (int codigo (pk))
-next_class_id = 1000
+# next_class_id = 1000
+next_class_id = min([cls['code'] for cls in database['classes']], default=999) + 1
 
 def _generate_class_id() -> int:
     """

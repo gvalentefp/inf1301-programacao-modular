@@ -21,7 +21,7 @@ __all__ = [
 ]
 
 # Variável global para gerar IDs sequenciais para Professores (int id (pk))
-next_professor_id = 1 
+next_professor_id = 1
 
 def _generate_professor_id() -> int:
     """
