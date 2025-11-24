@@ -13,10 +13,19 @@ __all__ = [
 ]
 
 # Variável global para gerar IDs sequenciais para Turmas (int codigo (pk))
-next_class_id = 1
+next_class_id = 1000
 
 def _generate_class_id() -> int:
-    """Objective: Generate a new unique ID for Class (Turma)."""
+    """
+    Objective: Generate the next available unique ID for Class (Turma).
+    Description: Calculates the maximum existing ID in the current 'classes' list within the database and returns the next sequential integer. This ensures persistence consistency across sessions and test runs.
+    Coupling:
+        :return int: The next available class ID (PK).
+    Coupling Conditions:
+        Input Assertions: (None).
+        Output Assertions: The returned ID is greater than any existing class ID (code) in the database['classes'].
+    User Interface: (None)
+    """
     global next_class_id
     id_atual = next_class_id
     next_class_id += 1
@@ -456,6 +465,15 @@ def delete_classes_by_subject(subject_code: int) -> int:
 def remove_review_reference_from_class(class_code: int, review_id: int) -> int:
     """
     Objective: Remove a review ID reference from the target class record.
+    Description: Called by the Review module during deletion to maintain referential integrity in the Class.
+    Coupling:
+        :param class_code (int): The code of the class to be updated.
+        :param review_id (int): The ID of the review to be removed from the class's list.
+        :return int: SUCCESS (0) or ERROR (1).
+    Coupling Conditions:
+        Input Assertions: Both IDs must be valid positive integers. Class must exist.
+        Output Assertions: If SUCCESS, review_id is removed from class_record['reviews_ids'].
+    User Interface: (None)
     """
     class_record = repo_retrieve_class(class_code)
     

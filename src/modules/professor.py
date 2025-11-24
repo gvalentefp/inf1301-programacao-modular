@@ -25,9 +25,14 @@ next_professor_id = 1
 
 def _generate_professor_id() -> int:
     """
-    Gera um novo ID único para Professor baseado no conteúdo atual do banco.
-    Isso garante que, depois de initialize_db() (que limpa o JSON em cada teste),
-    o primeiro professor criado receba sempre ID = 1.
+    Objective: Generate the next available unique ID for a Professor.
+    Description: Calculates the maximum existing ID in the current 'professors' list and returns the next sequential integer. This ensures persistence consistency across test runs.
+    Coupling:
+        :return int: The next available professor ID (PK).
+    Coupling Conditions:
+        Input Assertions: (None).
+        Output Assertions: The returned ID is greater than any existing professor ID in the database.
+    User Interface: (None)
     """
     global next_professor_id
 
@@ -502,7 +507,16 @@ def calculate_review_average_professor(prof_id: int) -> float:
 
 def remove_review_reference_from_professor(prof_id: int, review_id: int) -> int:
     """
-    Objective: Remove a review ID reference from the professor's received list. Corresponds to deleta_aval_prof.
+    Objective: Remove a review ID reference from the professor's received list.
+    Description: Corresponds to deleta_aval_prof. Ensures consistency when a Review directed at this Professor is deleted (cascading cleanup).
+    Coupling:
+        :param prof_id (int): Professor's ID.
+        :param review_id (int): Review's primary key to remove.
+        :return int: SUCCESS (0) or ERROR (1).
+    Coupling Conditions:
+        Input Assertions: prof_id and review_id are valid positive integers. Professor must exist.
+        Output Assertions: If SUCCESS, review_id is removed from professor['reviews'].
+    User Interface: (Internal Log).
     """
     professor = repo_retrieve_professor(prof_id)
     
@@ -521,10 +535,14 @@ def remove_review_reference_from_professor(prof_id: int, review_id: int) -> int:
 def remove_subject_reference_from_all_professors(subject_code: int) -> int:
     """
     Objective: Remove a specific subject code from the 'subjects' list of ALL professors.
-    Description: Maintains data integrity when a Subject is deleted.
+    Description: Maintains data integrity across the database when a Subject is deleted (cascading cleanup).
     Coupling:
         :param subject_code (int): The code of the subject being deleted.
         :return int: SUCCESS (0).
+    Coupling Conditions:
+        Input Assertions: subject_code is a valid positive integer.
+        Output Assertions: subject_code is removed from all professor['subjects'] lists where it was present.
+    User Interface: (Internal Log).
     """
     if not isinstance(subject_code, int) or subject_code <= 0:
         return RETURN_CODES['ERROR']

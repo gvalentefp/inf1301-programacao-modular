@@ -60,6 +60,19 @@
                 2
             ],
             "profile_private": true
+        },
+        {
+            "enrollment": 1000,
+            "username": "testefinal",
+            "password": "senha",
+            "name": "teste",
+            "institutional_email": "teste@puc-rio.br",
+            "course": "CIEN_COMP",
+            "subjects": [],
+            "reviews": [
+                1
+            ],
+            "profile_private": true
         }
     ],
     "professors": [
@@ -170,7 +183,7 @@
             ]
         },
         {
-            "code": 1,
+            "code": 103,
             "subject_code": 1316,
             "period": 20251,
             "schedule": [
@@ -219,7 +232,6 @@
         },
         {
             "id_aval": 1,
-<<<<<<< HEAD
             "student_enrollment": 2020321,
             "date_time": "2025-11-24T00:40:44.317236",
             "title": "nice",
@@ -239,14 +251,30 @@
             "category": "PROF_GOOD",
             "is_anonymous": true,
             "stars": 2,
-=======
-            "student_enrollment": 2220488,
-            "date_time": "2025-11-23T23:24:52.100231",
-            "title": "Nova avaliacao",
-            "comment": "Essa eh uma avaliacao teste...",
+            "class_target_code": 102,
+            "mentions": ""
+        },
+        {
+            "id_aval": 1,
+            "student_enrollment": 2020321,
+            "date_time": "2025-11-24T00:40:44.317236",
+            "title": "nice",
+            "comment": "good class",
             "category": "PROF_GOOD",
-            "is_anonymous": false,
-            "stars": 4,
+            "is_anonymous": true,
+            "stars": 5,
+            "class_target_code": 101,
+            "mentions": ""
+        },
+        {
+            "id_aval": 2,
+            "student_enrollment": 2020321,
+            "date_time": "2025-11-24T00:41:24.756934",
+            "title": "bad",
+            "comment": "bad class",
+            "category": "PROF_GOOD",
+            "is_anonymous": true,
+            "stars": 2,
             "class_target_code": 102,
             "mentions": ""
         },
@@ -284,6 +312,18 @@
             "is_anonymous": false,
             "stars": 3,
             "class_target_code": 1,
+            "mentions": ""
+        },
+        {
+            "id_aval": 1,
+            "student_enrollment": 1000,
+            "date_time": "2025-11-24T03:41:07.435445",
+            "title": "avaliacao má",
+            "comment": "esse prof é temido...",
+            "category": "PROF_BAD",
+            "is_anonymous": false,
+            "stars": 4,
+            "class_target_code": 103,
             "mentions": ""
         }
     ]

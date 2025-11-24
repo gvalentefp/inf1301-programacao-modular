@@ -38,9 +38,15 @@ WEEK_DAYS = [
 
 def parse_schedule(raw_schedule: str) -> List[Dict]:
     """
-    Função auxiliar para converter a string de horário (e.g., 'TUE 9-11, THU 14-16') 
-    para uma lista de dicionários.
-    Lança ValueError em caso de formato inválido.
+    Objective: Parse a raw schedule string into a structured list of dictionaries.
+    Description: Converts a comma-separated string (e.g., 'TUE 9-11, THU 14-16') into a list of dictionaries, checking for valid days and time ranges (0-24, start < end).
+    Coupling:
+        :param raw_schedule (str): The raw string input containing schedule blocks.
+        :return List[Dict]: A list of schedule dictionaries, each with keys 'day', 'start_time', and 'end_time'.
+    Coupling Conditions:
+        Input Assertions: raw_schedule must be a string containing blocks separated by commas.
+        Output Assertions: If successful, the list contains valid time blocks, and all 'day' values are present in WEEK_DAYS. Raises ValueError on invalid format, day, or time range.
+    User Interface: (None)
     """
     parsed_schedules = []
     

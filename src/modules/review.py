@@ -65,7 +65,16 @@ REVIEW_CATEGORIES = {
 next_review_id = 1 
 
 def _generate_review_id() -> int:
-    """Objective: Generate a new unique ID for Review (Avaliação)."""
+    """
+    Objective: Generate a new unique ID for Review (Avaliação).
+    Description: Calculates the maximum existing ID ('id_aval') in the current 'reviews' list and returns the next sequential integer.
+    Coupling:
+        :return int: The next available review ID (PK).
+    Coupling Conditions:
+        Input Assertions: (None).
+        Output Assertions: The returned ID is guaranteed to be unique within the database['reviews'].
+    User Interface: (None)
+    """
     global next_review_id
     id_atual = next_review_id
     next_review_id += 1

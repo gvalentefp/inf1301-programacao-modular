@@ -196,6 +196,7 @@ def handle_view_professors():
                         print(f"      Commentary: {r.get('comment')}")
                         print(f"      Class Subject: {subject['name']} ({subject['description']})")
                         print(f"      (Class Ref.: {r.get('class_target_code')})")
+                        print(f"      Published at {date_display}")
                         print("      ---")
             
             if not reviews_encontradas:
@@ -221,7 +222,7 @@ def handle_create_review():
     print(f"Classes available to review: {codes}")
 
     try:
-        turma_code = int(input("Class Code (Ex: 101): "))
+        turma_code = int(input("Class Code (e.g.: 101): "))
         titulo = input("Title: ")
         comentario = input("Comments: ")
         
@@ -229,7 +230,7 @@ def handle_create_review():
         nota_input = input("Rating (0 to 5 stars): ").replace(",", ".")
         nota = int(nota_input) 
 
-        category = input("Category (ex: 'PROF_GOOD'): ").strip().upper()
+        category = input("Category (e.g.: 'PROF_GOOD'): ").strip().upper()
 
         anonimo_input = input("Anônimo? (s/n): ").strip().lower()
         is_anon = (anonimo_input == 's')
@@ -260,7 +261,16 @@ def handle_create_review():
         print(f"Error: {e}")
 
 def handle_add_subject():
-    """Handles adding a subject to the logged-in student's profile."""
+    """
+    Objective: Orchestrate the process of adding a subject to the student's profile and ensuring the corresponding Class and Professor associations exist or are created.
+    Description: Parses raw input for Professor IDs and Schedule, validates Professor FKs, attempts to add the subject to the student's record, and conditionally creates a new Class record and associates the Professor(es).
+    Coupling:
+        :return None:
+    Coupling Conditions:
+        Input Assertions: CURRENT_USER must be set. All Professor IDs must exist. Schedule and Period must be valid.
+        Output Assertions: If successful, the student's subject list is updated, and a new Class/Professor association is created if the Class record did not already exist.
+    User Interface: Interactive prompts, validation messages, and process status reports.
+    """
     if not CURRENT_USER: return
     print("\n--- Add Subject To My Profile ---")
     print("Please provide the following subject details:")
