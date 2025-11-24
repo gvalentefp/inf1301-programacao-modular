@@ -7,6 +7,8 @@ from src.persistence import database
 from src.shared import RETURN_CODES, CONSTANTS
 from src.domains.course import validate_course
 from src.persistence import find_entity_by_pk
+# from src.modules.review import delete_review 
+# from src.modules.classes import delete_student_reference_from_all_classes 
 
 __all__ = [
     'create_student', 'retrieve_student', 'retrieve_all_students', 
@@ -35,7 +37,7 @@ def repo_retrieve_student(enrollment: int) -> Union[Dict, None]:
     if not isinstance(enrollment, int) or enrollment <= 0:
         return None
         
-    for student in database['students']:
+    for student in database['students']:    
         if student.get('enrollment') == enrollment:
             return student
     return None
@@ -157,6 +159,11 @@ def create_student(data: Dict) -> int:
     if repo_retrieve_student(data['enrollment']) is not None:
         print(f"Log: Failed to create student. Enrollment {data['enrollment']} already exists.")
         return RETURN_CODES['ERROR']
+    # PK Check for username uniqueness
+    for s in database.get('students', []):
+        if s['username'] == data['username']:
+            print(f"Log: Failed to create student. Username '{data['username']}' already exists.")
+            return RETURN_CODES['ERROR']
         
     # T1 - Success 
     return repo_create_student({
@@ -286,8 +293,9 @@ def delete_student(enrollment: int) -> int:
     User Interface: Log "Deleting student with enrollment {enrollment}" (Internal Log).
     """
 
-    from src.modules.classes import delete_student_reference_from_all_classes 
-    from src.modules.review import delete_review
+    # IMPORTAÇÕES DEFERIDAS (para quebrar a circularidade)
+    from src.modules.review import delete_review 
+    from src.modules.classes import delete_student_reference_from_all_classes
 
     student = repo_retrieve_student(enrollment)
     
