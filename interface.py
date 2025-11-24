@@ -44,13 +44,9 @@ def handle_registration():
             'institutional_email': input("Institutional Email (@puc-rio.br): "),
             'course': input("Course Acronym (e.g., CIEN_COMP): ")
         }
-        
-        # CORREÇÃO AQUI: Capturamos o resultado do backend
-        resultado = register_student_account(data)
-        
-        # Só salvamos e mostramos sucesso se o resultado for 0 (SUCCESS)
-
-            
+        register_student_account(data)
+        save_db()
+        print(">> Usuário registrado e salvo com sucesso!")
     except ValueError:
         print("Input Error: Enrollment must be a number.")
     except Exception as e:
@@ -98,6 +94,9 @@ def handle_view_professors():
     professors = retrieve_all_professors()
     all_reviews = retrieve_all_reviews()
     all_classes = database.get('classes', [])
+    
+    # Carrega alunos para buscar os nomes
+    all_students = database.get('students', [])
 
     print("\n--- All Professors & Reviews ---")
     if not professors:
@@ -116,18 +115,29 @@ def handle_view_professors():
                     if r.get('class_target_code') in turmas_do_prof:
                         reviews_encontradas = True
                         
-                        # Verifica se é anônimo
+                        # --- Lógica de Autor ---
                         if r.get('is_anonymous'):
                             autor_display = "Anônimo"
                         else:
-                            # Opcional: Buscar o nome do aluno na lista de estudantes se quiser mais detalhe
-                            autor_display = f"Aluno {r.get('student_enrollment')}"
+                            # Procura o aluno na lista para pegar o nome
+                            nome_aluno = "Desconhecido"
+                            for s in all_students:
+                                if s['enrollment'] == r.get('student_enrollment'):
+                                    nome_aluno = s['name']
+                                    break
+                            autor_display = f"{nome_aluno} ({r.get('student_enrollment')})"
+
+                        # --- Lógica de Data (NOVO) ---
+                        raw_date = r.get('date_time', '')
+                        # Limpa a formatação ISO (tira o T e segundos) para ficar bonito: YYYY-MM-DD HH:MM
+                        date_display = raw_date.replace('T', ' ')[:16] if raw_date else "Data N/A"
 
                         nota = int(r.get('stars', 0))
                         estrelas = "*" * nota
                         
                         print(f"   -> Nota: {nota} {estrelas}")
-                        print(f"      Autor: {autor_display}")
+                        print(f"      Data: {date_display}")  # <--- DATA AQUI
+                        print(f"      Autor: {autor_display}") 
                         print(f"      Comentário: {r.get('comment')}")
                         print(f"      (Ref. Turma: {r.get('class_target_code')})")
                         print("      ---")
@@ -140,6 +150,7 @@ def handle_create_review():
     if not CURRENT_USER: return
     print("\n--- Create New Review ---")
     
+    # Mostra turmas para facilitar
     classes = database.get('classes', [])
     codes = [c['code'] for c in classes]
     print(f"Turmas disponíveis para avaliar: {codes}")
@@ -153,7 +164,7 @@ def handle_create_review():
         nota_int = int(float(nota_input)) 
         
         anonimo_input = input("Anônimo? (s/n): ").strip().lower()
-        is_anon = anonimo_input == 's'
+        is_anon = (anonimo_input == 's')
 
         review_data = {
             "student_enrollment": CURRENT_USER['enrollment'],
@@ -163,10 +174,9 @@ def handle_create_review():
             "category": "PROF_GOOD",
             "class_target_code": turma_code,
             "is_anonymous": is_anon,
-            "date_time": datetime.datetime.now().isoformat()
+            "date_time": datetime.datetime.now().isoformat() # Já salva a data aqui
         }
 
-        # CORREÇÃO AQUI TAMBÉM: Verificamos o retorno
         resultado = create_review(review_data)
         
         if resultado == 0:
