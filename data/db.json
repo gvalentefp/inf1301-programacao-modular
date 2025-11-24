@@ -64,7 +64,8 @@
                 1302
             ],
             "reviews": [
-                2
+                2,
+                1
             ]
         }
     ],
@@ -138,7 +139,8 @@
                 2320615
             ],
             "reviews_ids": [
-                2
+                2,
+                1
             ]
         }
     ],
@@ -164,6 +166,40 @@
             "category": "SUBJECT_DIFFICULT",
             "is_anonymous": true,
             "stars": 3,
+            "class_target_code": 102,
+            "mentions": ""
+        },
+        {
+            "id_aval": 1,
+<<<<<<< HEAD
+            "student_enrollment": 2020321,
+            "date_time": "2025-11-24T00:40:44.317236",
+            "title": "nice",
+            "comment": "good class",
+            "category": "PROF_GOOD",
+            "is_anonymous": true,
+            "stars": 5,
+            "class_target_code": 101,
+            "mentions": ""
+        },
+        {
+            "id_aval": 2,
+            "student_enrollment": 2020321,
+            "date_time": "2025-11-24T00:41:24.756934",
+            "title": "bad",
+            "comment": "bad class",
+            "category": "PROF_GOOD",
+            "is_anonymous": true,
+            "stars": 2,
+=======
+            "student_enrollment": 2220488,
+            "date_time": "2025-11-23T23:24:52.100231",
+            "title": "Nova avaliacao",
+            "comment": "Essa eh uma avaliacao teste...",
+            "category": "PROF_GOOD",
+            "is_anonymous": false,
+            "stars": 4,
+>>>>>>> 5d75b70 (Add project documentation, enhance user registration, and update review handling)
             "class_target_code": 102,
             "mentions": ""
         },

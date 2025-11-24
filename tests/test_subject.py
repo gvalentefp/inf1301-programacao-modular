@@ -39,7 +39,7 @@ class TestSubject(unittest.TestCase):
     # --- Test Case 01: create_subject ---
     
     def test_01_create_subject_ok_return_success(self):
-        """T1: Returns SUCCESS (0) when all parameters are passed correctly[cite: 619]."""
+        """T1: Returns SUCCESS (0) when all parameters are passed correctly."""
         print("\nTest Case 01 - Create subject with success (return code check)")
         ret_code = create_subject(VALID_SUBJECT_DATA)
         self.assertEqual(ret_code, RETURN_CODES['SUCCESS'])
@@ -47,7 +47,7 @@ class TestSubject(unittest.TestCase):
         self.assertDictEqual(database['subjects'][0], VALID_SUBJECT_DATA)
         
     def test_02_create_subject_nok_existing_code(self):
-        """T3: Returns ERROR (1) if the primary key (code) already exists[cite: 621]."""
+        """T3: Returns ERROR (1) if the primary key (code) already exists."""
         print("\nTest Case 02 - Impede insertion if code exists")
         create_subject(VALID_SUBJECT_DATA)
         
@@ -59,7 +59,7 @@ class TestSubject(unittest.TestCase):
         self.assertEqual(len(database['subjects']), 1) # Must remain 1
         
     def test_03_create_subject_nok_invalid_data(self):
-        """T4: Returns ERROR (1) for invalid data (e.g., negative credits)[cite: 625]."""
+        """T4: Returns ERROR (1) for invalid data (e.g., negative credits)."""
         print("\nTest Case 03 - Invalid data (negative credits)")
         invalid_data = VALID_SUBJECT_DATA.copy()
         invalid_data['credits'] = -1
@@ -70,7 +70,7 @@ class TestSubject(unittest.TestCase):
         self.assertEqual(len(database['subjects']), 0)
         
     def test_04_create_subject_nok_null_data(self):
-        """T2: Returns ERROR (1) if the data dictionary/pointer is NULL (None)[cite: 620]."""
+        """T2: Returns ERROR (1) if the data dictionary/pointer is NULL (None)."""
         print("\nTest Case 04 - Null data")
         ret_code = create_subject(None)
         self.assertEqual(ret_code, RETURN_CODES['ERROR'])
@@ -78,7 +78,7 @@ class TestSubject(unittest.TestCase):
     # --- Test Case 05: retrieve_subject ---
     
     def test_05_retrieve_subject_ok_found(self):
-        """T1: Returns the subject dictionary for a corresponding code[cite: 628]."""
+        """T1: Returns the subject dictionary for a corresponding code."""
         print("\nTest Case 05 - Retrieve subject found")
         create_subject(VALID_SUBJECT_DATA)
         subject = retrieve_subject(VALID_SUBJECT_DATA['code'])
@@ -86,13 +86,13 @@ class TestSubject(unittest.TestCase):
         self.assertEqual(subject['name'], 'Modular Programming')
         
     def test_06_retrieve_subject_nok_not_found(self):
-        """T2: Returns NULL (None) for a non-existent code[cite: 629]."""
+        """T2: Returns NULL (None) for a non-existent code."""
         print("\nTest Case 06 - Retrieve subject not found")
         subject = retrieve_subject(999) # Code 999 does not exist
         self.assertIsNone(subject)
         
     def test_07_retrieve_subject_nok_invalid_code(self):
-        """T3: Returns NULL (None) for an invalid parameter (e.g., negative code)[cite: 630]."""
+        """T3: Returns NULL (None) for an invalid parameter (e.g., negative code)."""
         print("\nTest Case 07 - Retrieve subject with invalid code")
         subject = retrieve_subject(-101) 
         self.assertIsNone(subject)
@@ -100,7 +100,7 @@ class TestSubject(unittest.TestCase):
     # --- Test Case 08: update_subject ---
     
     def test_08_update_subject_ok_success(self):
-        """T1: Returns SUCCESS (0) and updates fields with valid new data[cite: 633]."""
+        """T1: Returns SUCCESS (0) and updates fields with valid new data."""
         print("\nTest Case 08 - Update subject with success")
         create_subject(VALID_SUBJECT_DATA)
         new_data = {
@@ -115,7 +115,7 @@ class TestSubject(unittest.TestCase):
         self.assertEqual(updated_subject['credits'], 6)
 
     def test_09_update_subject_nok_not_found(self):
-        """T2: Returns ERROR (1) if the code is not registered[cite: 634]."""
+        """T2: Returns ERROR (1) if the code is not registered."""
         print("\nTest Case 09 - Update non-existent subject")
         new_data = {'name': 'New Name'}
         ret_code = update_subject(999, new_data)
@@ -147,7 +147,7 @@ class TestSubject(unittest.TestCase):
     # --- Test Case 11: delete_subject ---
 
     def test_11_delete_subject_ok_success(self):
-        """T1: Returns SUCCESS (0) and removes the subject[cite: 639]."""
+        """T1: Returns SUCCESS (0) and removes the subject."""
         print("\nTest Case 11 - Delete subject with success")
         create_subject(VALID_SUBJECT_DATA)
         ret_code = delete_subject(VALID_SUBJECT_DATA['code'])
@@ -155,13 +155,13 @@ class TestSubject(unittest.TestCase):
         self.assertIsNone(retrieve_subject(VALID_SUBJECT_DATA['code']))
 
     def test_12_delete_subject_nok_not_found(self):
-        """T2: Returns ERROR (1) if the subject is not registered[cite: 640]."""
+        """T2: Returns ERROR (1) if the subject is not registered."""
         print("\nTest Case 12 - Delete non-existent subject")
         ret_code = delete_subject(999)
         self.assertEqual(ret_code, RETURN_CODES['ERROR'])
         
     def test_13_delete_subject_nok_invalid_code(self):
-        """T3: Returns ERROR (1) if the code parameter is invalid (e.g., negative)[cite: 644]."""
+        """T3: Returns ERROR (1) if the code parameter is invalid (e.g., negative)."""
         print("\nTest Case 13 - Delete with invalid code")
         ret_code = delete_subject(-101)
         self.assertEqual(ret_code, RETURN_CODES['ERROR'])

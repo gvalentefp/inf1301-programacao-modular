@@ -34,5 +34,5 @@ DEPT_LIST = {
 }
 
 def validate_department(dept_acronym: str) -> bool:
-    """Checks if the department acronym is valid. Corresponds to valida_depto[cite: 415]."""
+    """Checks if the department acronym is valid. Corresponds to valida_depto."""
     return dept_acronym in DEPT_LIST

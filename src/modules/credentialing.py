@@ -23,7 +23,7 @@ def _validate_institutional_link(enrollment: int, email: str) -> bool:
     Objective: Simulate the validation of the institutional link (enrollment and email).
     Description: Checks if the provided enrollment and institutional email are linked and valid.
                  (For simplicity, this function always returns True, mimicking a successful external API call, 
-                 as per the requirement: 'por simplicidade, será exigida a matrícula e o e-mail institucional' [cite: 180]).
+                 as per the requirement: 'por simplicidade, será exigida a matrícula e o e-mail institucional').
     Coupling:
         :param enrollment (int): Student's enrollment ID.
         :param email (str): Student's institutional email.
@@ -39,14 +39,14 @@ def _validate_institutional_link(enrollment: int, email: str) -> bool:
     if "@puc-rio.br" not in email.lower() or not email:
         return False
         
-    # Mocking successful check for simplicity [cite: 180]
+    # Mocking successful check for simplicity 
     return True
 
 def register_student_account(student_data: Dict) -> int:
     """
     Objective: Create a new student account, enforcing institutional linkage and data integrity.
     Description: Corresponds to the creation process where Matrícula, nome, username, e-mail e curso 
-                 must be informed, plus password[cite: 181]. It uses the student module's creation function.
+                 must be informed, plus password. It uses the student module's creation function.
     Coupling:
         :param student_data (Dict): Dictionary containing all required fields for student creation.
         :return int: SUCCESS (0) or ERROR (1).
@@ -60,7 +60,7 @@ def register_student_account(student_data: Dict) -> int:
         print("User Message: Registration failed. Invalid or incomplete data provided.")
         return RETURN_CODES['ERROR']
         
-    # 2. Institutional Link Validation [cite: 180]
+    # 2. Institutional Link Validation 
     if not _validate_institutional_link(student_data['enrollment'], student_data['institutional_email']):
         print("User Message: Registration failed. Enrollment and institutional email do not match PUC-Rio records.")
         return RETURN_CODES['ERROR']
@@ -89,7 +89,7 @@ def register_student_account(student_data: Dict) -> int:
 def authenticate_user(enrollment: int, password: str) -> Union[Dict, int]:
     """
     Objective: Verify user credentials for login access.
-    Description: Corresponds to the requirement: 'O usuário apenas poderá acessar o serviço caso possua uma conta e esteja logado'[cite: 179].
+    Description: Corresponds to the requirement: 'O usuário apenas poderá acessar o serviço caso possua uma conta e esteja logado'.
     Coupling:
         :param enrollment (int): Student's enrollment ID.
         :param password (str): The password provided by the user.

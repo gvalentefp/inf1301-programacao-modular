@@ -7,7 +7,7 @@ import datetime
 from src.modules.credentialing import register_student_account, authenticate_user
 from src.modules.student import retrieve_student_subjects
 from src.modules.professor import retrieve_all_professors
-from src.modules.review import create_review, retrieve_all_reviews
+from src.modules.review import create_review, retrieve_all_reviews, REVIEW_CATEGORIES
 from src.persistence import database, save_db 
 from src.shared import RETURN_CODES
 
@@ -62,9 +62,11 @@ def handle_registration():
             'institutional_email': input("Institutional Email (@puc-rio.br): "),
             'course': input("Course Acronym (e.g., CIEN_COMP): ")
         }
-        register_student_account(data)
-        save_db()
-        print(">> Usuário registrado e salvo com sucesso!")
+        resultado = register_student_account(data)
+        if resultado == RETURN_CODES['SUCCESS']:
+            print(">> User registered succesfully!")
+        else:
+            print(">> Error registering new user!")
     except ValueError:
         print("Input Error: Enrollment must be a number.")
     except Exception as e:
@@ -95,9 +97,9 @@ def handle_login():
         
         if isinstance(user_or_error, dict):
             CURRENT_USER = user_or_error
-            print(">> Login realizado com sucesso!")
+            print(">> Logged in successfully!")
         else:
-            print(">> Erro: Credenciais inválidas.")
+            print(">> Error: Invalid credentials.")
             
     except ValueError:
         print("Input Error: Enrollment must be a number.")
@@ -163,7 +165,7 @@ def handle_view_professors():
                         
                         # --- Lógica de Autor ---
                         if r.get('is_anonymous'):
-                            autor_display = "Anônimo"
+                            autor_display = "Anonymous"
                         else:
                             # Procura o aluno na lista para pegar o nome
                             nome_aluno = "Desconhecido"
@@ -178,18 +180,19 @@ def handle_view_professors():
                         # Limpa a formatação ISO (tira o T e segundos) para ficar bonito: YYYY-MM-DD HH:MM
                         date_display = raw_date.replace('T', ' ')[:16] if raw_date else "Data N/A"
 
-                        nota = int(r.get('stars', 0))
-                        estrelas = "*" * nota
+                        # Nota visual (estrelas)
+                        nota = float(r.get('stars', 0))
+                        estrelas = "*" * int(nota)
                         
-                        print(f"   -> Nota: {nota} {estrelas}")
-                        print(f"      Data: {date_display}")  # <--- DATA AQUI
-                        print(f"      Autor: {autor_display}") 
-                        print(f"      Comentário: {r.get('comment')}")
-                        print(f"      (Ref. Turma: {r.get('class_target_code')})")
+                        print(f"   -> Rating: {nota} {estrelas}")
+                        print(f"      Author: {autor_display}")  
+                        print(f"      Category: {r.get('category')}")
+                        print(f"      Commentary: {r.get('comment')}")
+                        print(f"      (Class Ref.: {r.get('class_target_code')})")
                         print("      ---")
             
             if not reviews_encontradas:
-                print("   (Nenhuma avaliação disponível)")
+                print("   (No reviews available)")
 
 def handle_create_review():
     """
@@ -208,16 +211,21 @@ def handle_create_review():
     # Mostra turmas para facilitar
     classes = database.get('classes', [])
     codes = [c['code'] for c in classes]
-    print(f"Turmas disponíveis para avaliar: {codes}")
+    print(f"Classes available to review: {codes}")
 
     try:
-        turma_code = int(input("Código da Turma (Ex: 101): "))
-        titulo = input("Título: ")
-        comentario = input("Comentário: ")
+        turma_code = int(input("Class Code (Ex: 101): "))
+        titulo = input("Title: ")
+        comentario = input("Comments: ")
         
-        nota_input = input("Nota (0 a 5): ").replace(",", ".")
+        # Tratamento da Nota (Aceita 4.5 mas envia 4 para o backend antigo)
+        nota_input = input("Rating (0 to 5 stars): ").replace(",", ".")
         nota_int = int(float(nota_input)) 
-        
+        nota_decimal = int(10*(float(nota_input) - nota_int))
+        nota_final = nota_int + nota_decimal
+
+        category = input("Category (ex: 'PROF_GOOD'): ")
+
         anonimo_input = input("Anônimo? (s/n): ").strip().lower()
         is_anon = (anonimo_input == 's')
 
@@ -225,8 +233,8 @@ def handle_create_review():
             "student_enrollment": CURRENT_USER['enrollment'],
             "title": titulo,
             "comment": comentario,
-            "stars": nota_int,
-            "category": "PROF_GOOD",
+            "stars": nota_final,
+            "category": category,
             "class_target_code": turma_code,
             "is_anonymous": is_anon,
             "date_time": datetime.datetime.now().isoformat() # Já salva a data aqui
@@ -238,12 +246,12 @@ def handle_create_review():
             save_db()
             print("\n>> Sucesso! Avaliação registrada e salva.")
         else:
-            print("\n>> Erro: O backend rejeitou a avaliação. Verifique se a turma existe.")
+            print("\n>> Error: Review got rejected. (Verify if class exists)")
 
     except ValueError:
-        print("Erro: Digite valores numéricos válidos.")
+        print("Error: Type valid numerical values.")
     except Exception as e:
-        print(f"Erro técnico: {e}")
+        print(f"Error: {e}")
 
 def run_frontend():
     """

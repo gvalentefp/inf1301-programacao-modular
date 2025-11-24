@@ -12,7 +12,7 @@ COURSE_LIST = {
     'CIEN_COMP': 'Ciência da Computação',
     'COM_SOC': 'Comunicação Social',
     'DSGN': 'Design',
-    'LAW': 'Direito', # DIR [cite: 364]
+    'DIR': 'Direito',  
     'ENG_AMB': 'Engenharia Ambiental',
     'ENG_CIV': 'Engenharia Civil',
     'ENG_COMP': 'Engenharia de Computação',
