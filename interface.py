@@ -44,9 +44,13 @@ def handle_registration():
             'institutional_email': input("Institutional Email (@puc-rio.br): "),
             'course': input("Course Acronym (e.g., CIEN_COMP): ")
         }
-        register_student_account(data)
-        save_db()
-        print(">> Usuário registrado e salvo com sucesso!")
+        
+        # CORREÇÃO AQUI: Capturamos o resultado do backend
+        resultado = register_student_account(data)
+        
+        # Só salvamos e mostramos sucesso se o resultado for 0 (SUCCESS)
+
+            
     except ValueError:
         print("Input Error: Enrollment must be a number.")
     except Exception as e:
@@ -112,19 +116,18 @@ def handle_view_professors():
                     if r.get('class_target_code') in turmas_do_prof:
                         reviews_encontradas = True
                         
-                        # --- LÓGICA DE EXIBIÇÃO DO AUTOR (CORRIGIDA) ---
+                        # Verifica se é anônimo
                         if r.get('is_anonymous'):
                             autor_display = "Anônimo"
                         else:
-                            autor_display = f" {r.get('student_enrollment')}"
-                        # -----------------------------------------------
+                            # Opcional: Buscar o nome do aluno na lista de estudantes se quiser mais detalhe
+                            autor_display = f"Aluno {r.get('student_enrollment')}"
 
-                        # Nota visual (estrelas)
                         nota = int(r.get('stars', 0))
                         estrelas = "*" * nota
                         
                         print(f"   -> Nota: {nota} {estrelas}")
-                        print(f"      Autor: {autor_display}")  # Agora mostra quem escreveu!
+                        print(f"      Autor: {autor_display}")
                         print(f"      Comentário: {r.get('comment')}")
                         print(f"      (Ref. Turma: {r.get('class_target_code')})")
                         print("      ---")
@@ -137,7 +140,6 @@ def handle_create_review():
     if not CURRENT_USER: return
     print("\n--- Create New Review ---")
     
-    # Mostra turmas para facilitar
     classes = database.get('classes', [])
     codes = [c['code'] for c in classes]
     print(f"Turmas disponíveis para avaliar: {codes}")
@@ -147,7 +149,6 @@ def handle_create_review():
         titulo = input("Título: ")
         comentario = input("Comentário: ")
         
-        # Tratamento da Nota (Aceita 4.5 mas envia 4 para o backend antigo)
         nota_input = input("Nota (0 a 5): ").replace(",", ".")
         nota_int = int(float(nota_input)) 
         
@@ -165,13 +166,14 @@ def handle_create_review():
             "date_time": datetime.datetime.now().isoformat()
         }
 
+        # CORREÇÃO AQUI TAMBÉM: Verificamos o retorno
         resultado = create_review(review_data)
         
         if resultado == 0:
             save_db()
             print("\n>> Sucesso! Avaliação registrada e salva.")
         else:
-            print("\n>> Erro: O backend rejeitou a avaliação. (Verifique se a turma existe)")
+            print("\n>> Erro: O backend rejeitou a avaliação. Verifique se a turma existe.")
 
     except ValueError:
         print("Erro: Digite valores numéricos válidos.")
