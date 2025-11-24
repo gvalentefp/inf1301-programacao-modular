@@ -4,12 +4,14 @@ Objective: Provides basic user interaction (Menu, Login, Register, Reviews) to v
 Corresponds to the 'INTERFACE FRONTEND' module.
 """
 import datetime
+from src.modules.subject import retrieve_subject
+from src.modules.classes import exists_class, create_class, retrieve_class
 from src.modules.credentialing import register_student_account, authenticate_user
-from src.modules.student import retrieve_student_subjects
-from src.modules.professor import retrieve_all_professors
+from src.modules.student import retrieve_student_subjects, create_student_subject
+from src.modules.professor import retrieve_all_professors, create_professor_subject, retrieve_professor
 from src.modules.review import create_review, retrieve_all_reviews, REVIEW_CATEGORIES
 from src.persistence import database, save_db 
-from src.shared import RETURN_CODES
+from src.shared import RETURN_CODES, parse_schedule
 
 # Variável de estado para manter o usuário logado
 CURRENT_USER = None 
@@ -37,6 +39,7 @@ def display_menu():
         print("4. View All Professors & Reviews")
         print("5. Create Review")
         print("6. Logout")
+        print("7. Add Subject To My Profile")
     
     print("0. Exit Application")
     return input("Select an option: ")
@@ -152,6 +155,7 @@ def handle_view_professors():
     else:
         for prof in professors:
             print(f"\n[ID: {prof['id']}] {prof['name']} | Dept: {prof['department']}")
+            print(f"Subjects: {prof['subjects']}")
             print("-" * 40)
             
             # Filtra turmas e reviews
@@ -181,13 +185,16 @@ def handle_view_professors():
                         date_display = raw_date.replace('T', ' ')[:16] if raw_date else "Data N/A"
 
                         # Nota visual (estrelas)
-                        nota = float(r.get('stars', 0))
+                        nota = int(r.get('stars', 0))
                         estrelas = "*" * int(nota)
+
+                        subject = retrieve_subject(retrieve_class(r.get('class_target_code'))['subject_code'])
                         
                         print(f"   -> Rating: {nota} {estrelas}")
                         print(f"      Author: {autor_display}")  
                         print(f"      Category: {r.get('category')}")
                         print(f"      Commentary: {r.get('comment')}")
+                        print(f"      Class Subject: {subject['name']} ({subject['description']})")
                         print(f"      (Class Ref.: {r.get('class_target_code')})")
                         print("      ---")
             
@@ -220,11 +227,9 @@ def handle_create_review():
         
         # Tratamento da Nota (Aceita 4.5 mas envia 4 para o backend antigo)
         nota_input = input("Rating (0 to 5 stars): ").replace(",", ".")
-        nota_int = int(float(nota_input)) 
-        nota_decimal = int(10*(float(nota_input) - nota_int))
-        nota_final = nota_int + nota_decimal
+        nota = int(nota_input) 
 
-        category = input("Category (ex: 'PROF_GOOD'): ")
+        category = input("Category (ex: 'PROF_GOOD'): ").strip().upper()
 
         anonimo_input = input("Anônimo? (s/n): ").strip().lower()
         is_anon = (anonimo_input == 's')
@@ -233,8 +238,9 @@ def handle_create_review():
             "student_enrollment": CURRENT_USER['enrollment'],
             "title": titulo,
             "comment": comentario,
-            "stars": nota_final,
+            "stars": nota,
             "category": category,
+            # "category": 'PROF_GOOD',
             "class_target_code": turma_code,
             "is_anonymous": is_anon,
             "date_time": datetime.datetime.now().isoformat() # Já salva a data aqui
@@ -252,6 +258,55 @@ def handle_create_review():
         print("Error: Type valid numerical values.")
     except Exception as e:
         print(f"Error: {e}")
+
+def handle_add_subject():
+    """Handles adding a subject to the logged-in student's profile."""
+    if not CURRENT_USER: return
+    print("\n--- Add Subject To My Profile ---")
+    print("Please provide the following subject details:")
+
+    try:
+        code = int(input("\n>> Subject Code (e.g., '1301'): "))
+        period = int(input(">> Period (e.g., '20242'): "))
+        raw_professor = input(">> Professors' ID List (e.g., '1, 2, 3'): ")
+        raw_schedule = input(">> Schedule (e.g., 'TUE 9-11, THU 14-16'): ")
+        
+        professor_ids = [int(p.strip()) for p in raw_professor.split(',') if p.strip().isdigit()]
+        for prof_id in professor_ids:
+            prof = retrieve_professor(prof_id)
+            if prof is None:
+                print(f">> Error: Professor ID {prof_id} does not exist. Aborting process.")
+       
+        schedule = parse_schedule(raw_schedule)
+
+        class_data = {
+            'subject_code': code,
+            'period': period,
+            'professors_ids': professor_ids,  # AQUI DEVE SER ADICIONADO O PROFESSOR CONVERTIDO
+            'schedule': schedule,  # AQUI DEVE SER ADICIONADO O schedule CONVERTIDO
+            'students_enrollments': [CURRENT_USER['enrollment']],
+            'reviews_ids': []
+        }
+
+        if create_student_subject(CURRENT_USER['enrollment'], code) == RETURN_CODES['SUCCESS']:
+            print(">> Subject added to your profile successfully!")
+            if exists_class(class_data) == RETURN_CODES['ERROR']:
+                for prof_id in professor_ids:
+                    if create_professor_subject(prof_id, code) == RETURN_CODES['ERROR']:
+                        print(f">> Error adding subject {code} to professor ID {prof_id}!")
+                    else: 
+                        print(f">> Subject {code} added to professor ID {prof_id} successfully!")
+                resultado = create_class(class_data) # adds to database a new class record
+                if resultado == RETURN_CODES['SUCCESS']:
+                    print(">> New class created successfully!")
+                else:
+                    print(">> Error creating new class!")
+        else:
+            print(">> Error adding subject to your profile!")
+            return
+        
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 def run_frontend():
     """
@@ -276,6 +331,7 @@ def run_frontend():
         elif choice == '6' and CURRENT_USER:
             CURRENT_USER = None
             print("Logged out successfully.")
+        elif choice == '7' and CURRENT_USER: handle_add_subject()
         else:
             print("Invalid option.")
 

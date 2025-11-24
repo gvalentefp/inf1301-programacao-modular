@@ -30,13 +30,31 @@
             "profile_private": false
         },
         {
-            "enrollment": 2020321,
-            "username": "fula",
-            "password": "fula",
-            "name": "fula",
-            "institutional_email": "fula@puc-rio.br",
+            "enrollment": 2220488,
+            "username": "gvalente",
+            "password": "senha123",
+            "name": "Gabriel Valente",
+            "institutional_email": "gvalente@puc-rio.br",
+            "course": "ENG_COMP",
+            "subjects": [
+                1301,
+                1302
+            ],
+            "reviews": [
+                1
+            ],
+            "profile_private": true
+        },
+        {
+            "enrollment": 111,
+            "username": "user",
+            "password": "senha",
+            "name": "Nome",
+            "institutional_email": "user@puc-rio.br",
             "course": "CIEN_COMP",
-            "subjects": [],
+            "subjects": [
+                1316
+            ],
             "reviews": [
                 1,
                 2
@@ -50,7 +68,8 @@
             "name": "Flavio Heleno Bevilacqua E Silva",
             "department": "INF",
             "subjects": [
-                1301
+                1301,
+                1316
             ],
             "reviews": [
                 1
@@ -61,7 +80,8 @@
             "name": "Marcus Poggi",
             "department": "INF",
             "subjects": [
-                1302
+                1302,
+                1316
             ],
             "reviews": [
                 2,
@@ -87,6 +107,12 @@
             "credits": 6,
             "name": "Cálculo 1",
             "description": "Limits, Derivatives, and Integrals."
+        },
+        {
+            "code": 1316,
+            "credits": 4,
+            "name": "Sistemas Operacionais",
+            "description": "UNIX, programação baixo nível em C."
         }
     ],
     "classes": [
@@ -140,6 +166,28 @@
             ],
             "reviews_ids": [
                 2,
+                1
+            ]
+        },
+        {
+            "code": 1,
+            "subject_code": 1316,
+            "period": 20251,
+            "schedule": [
+                {
+                    "day": "MON",
+                    "start_time": 7,
+                    "end_time": 11
+                }
+            ],
+            "professors_ids": [
+                1,
+                2
+            ],
+            "students_enrollments": [
+                111
+            ],
+            "reviews_ids": [
                 1
             ]
         }
@@ -199,32 +247,43 @@
             "category": "PROF_GOOD",
             "is_anonymous": false,
             "stars": 4,
->>>>>>> 5d75b70 (Add project documentation, enhance user registration, and update review handling)
             "class_target_code": 102,
             "mentions": ""
         },
         {
             "id_aval": 1,
-            "student_enrollment": 2020321,
-            "date_time": "2025-11-24T00:40:44.317236",
-            "title": "nice",
-            "comment": "good class",
+            "student_enrollment": 111,
+            "date_time": "2025-11-24T02:12:08.815235",
+            "title": "titulo",
+            "comment": "comentario",
             "category": "PROF_GOOD",
-            "is_anonymous": true,
-            "stars": 5,
+            "is_anonymous": false,
+            "stars": 4,
             "class_target_code": 101,
             "mentions": ""
         },
         {
-            "id_aval": 2,
-            "student_enrollment": 2020321,
-            "date_time": "2025-11-24T00:41:24.756934",
-            "title": "bad",
-            "comment": "bad class",
-            "category": "PROF_GOOD",
-            "is_anonymous": true,
-            "stars": 2,
+            "id_aval": 1,
+            "student_enrollment": 111,
+            "date_time": "2025-11-24T02:18:03.469638",
+            "title": "t",
+            "comment": "c",
+            "category": "PROF_BAD",
+            "is_anonymous": false,
+            "stars": 0,
             "class_target_code": 102,
+            "mentions": ""
+        },
+        {
+            "id_aval": 1,
+            "student_enrollment": 111,
+            "date_time": "2025-11-24T02:29:47.925681",
+            "title": "tit",
+            "comment": "coment",
+            "category": "SUBJECT_DIFFICULT",
+            "is_anonymous": false,
+            "stars": 3,
+            "class_target_code": 1,
             "mentions": ""
         }
     ]
